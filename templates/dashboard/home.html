@@ -42,3 +42,14 @@
     </div>
 </div>
 {% endblock %}
+
+{% if user.repository_set.filter.is_active.first %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <strong>پروژه فعال:</strong> 
+            {{ user.repository_set.filter.is_active.first.full_name }}
+        </div>
+    </div>
+</div>
+{% endif %}

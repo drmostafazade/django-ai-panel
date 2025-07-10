@@ -18,6 +18,7 @@
             {% if user.is_authenticated %}
             <div class="navbar-nav">
                 <a class="nav-link" href="{% url 'git_integration:settings' %}">تنظیمات Git</a>
+                <a class="nav-link" href="{% url 'git_integration:repositories' %}">مخازن من</a>
             </div>
             <div class="navbar-nav ms-auto">
                 <span class="navbar-text text-white me-3">{{ user.username }}</span>

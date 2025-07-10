@@ -5,30 +5,71 @@
 <div class="row">
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header">
-                <h5>تنظیمات GitHub</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">تنظیمات GitHub</h5>
+                {% if token %}
+                <span class="badge bg-success">متصل</span>
+                {% endif %}
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
+                    <input type="hidden" name="action" value="save_token">
                     <div class="mb-3">
                         <label class="form-label">GitHub Personal Access Token</label>
-                        <input type="text" name="github_token" class="form-control" 
+                        <input type="password" name="github_token" class="form-control" 
                                value="{% if token %}{{ token.token|slice:":10" }}...{% endif %}"
                                placeholder="ghp_xxxxxxxxxxxx">
                         <small class="text-muted">
-                            <a href="https://github.com/settings/tokens" target="_blank">
-                                دریافت توکن از GitHub
+                            <a href="https://github.com/settings/tokens/new" target="_blank">
+                                دریافت توکن جدید از GitHub
                             </a>
                         </small>
                     </div>
-                    <button type="submit" class="btn btn-primary">ذخیره</button>
-                    {% if token %}
-                    <span class="text-success ms-2">✅ توکن ذخیره شده</span>
-                    {% endif %}
+                    <button type="submit" class="btn btn-primary">ذخیره توکن</button>
+                    <button type="button" class="btn btn-secondary ms-2" onclick="testConnection()">
+                        تست اتصال
+                    </button>
                 </form>
+                
+                {% if token %}
+                <hr class="my-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="sync_repos">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-arrow-repeat"></i> همگام‌سازی مخازن
+                    </button>
+                    <a href="{% url 'git_integration:repositories' %}" class="btn btn-outline-primary ms-2">
+                        مشاهده مخازن
+                    </a>
+                </form>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function testConnection() {
+    const token = document.querySelector('input[name="github_token"]').value;
+    if (!token) {
+        alert('لطفاً توکن را وارد کنید');
+        return;
+    }
+    
+    fetch("{% url 'git_integration:test_connection' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'token=' + encodeURIComponent(token)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    });
+}
+</script>
 {% endblock %}
