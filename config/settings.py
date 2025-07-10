@@ -15,7 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'dashboard',
-    'git_manager',
+    'git_integration',
 ]
 
 MIDDLEWARE = [
@@ -48,16 +48,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'bsepar_panel_db',
-        'USER': 'bsepar_panel_user',
-        'PASSWORD': '5011700',  # تغییر دهید
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
 
 LANGUAGE_CODE = 'fa-ir'
 TIME_ZONE = 'Asia/Tehran'
@@ -73,3 +63,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/auth/login/'
+from .db_settings import DATABASES

@@ -1,0 +1,34 @@
+{% extends 'base/base.html' %}
+{% block title %}تنظیمات Git{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>تنظیمات GitHub</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">GitHub Personal Access Token</label>
+                        <input type="text" name="github_token" class="form-control" 
+                               value="{% if token %}{{ token.token|slice:":10" }}...{% endif %}"
+                               placeholder="ghp_xxxxxxxxxxxx">
+                        <small class="text-muted">
+                            <a href="https://github.com/settings/tokens" target="_blank">
+                                دریافت توکن از GitHub
+                            </a>
+                        </small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">ذخیره</button>
+                    {% if token %}
+                    <span class="text-success ms-2">✅ توکن ذخیره شده</span>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

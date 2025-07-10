@@ -12,3 +12,4 @@ media/
 *.log
 db_credentials.txt
 gunicorn.sock
+config/db_settings.py
