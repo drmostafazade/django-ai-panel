@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'dashboard',
+    'git_integration',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +89,7 @@ LOGGING = {
     },
 }
 
-DEBUG = True
+DEBUG = False
 
 # Logging Configuration
 LOGGING = {
@@ -114,4 +115,4 @@ LOGGING = {
     },
 }
 
-DEBUG = True
+DEBUG = False
