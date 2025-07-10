@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h3 class="mb-4">مدیریت Git</h3>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="list-group">
+                <a href="{% url 'git_integration:settings' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-gear"></i> تنظیمات GitHub
+                </a>
+                <a href="{% url 'git_integration:repositories' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-folder"></i> مخازن من
+                </a>
+            </div>
+        </div>
+        <div class="col-md-8">
+            {% block git_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

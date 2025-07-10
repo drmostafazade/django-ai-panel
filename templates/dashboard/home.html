@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% block title %}داشبورد - پنل توسعه هوشمند{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-12">
@@ -7,6 +8,7 @@
         <p class="text-muted">به پنل توسعه هوشمند بسپار خوش آمدید</p>
     </div>
 </div>
+
 <div class="row mt-4">
     <div class="col-md-3">
         <div class="card text-white bg-success">
@@ -42,14 +44,3 @@
     </div>
 </div>
 {% endblock %}
-
-{% if user.repository_set.filter(is_active=True)=True).first %}
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="alert alert-info">
-            <strong>پروژه فعال:</strong> 
-            {{ user.repository_set.filter(is_active=True)=True).first.full_name }}
-        </div>
-    </div>
-</div>
-{% endif %}
