@@ -116,3 +116,8 @@ LOGGING = {
 }
 
 DEBUG = False
+
+# Static files settings
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
