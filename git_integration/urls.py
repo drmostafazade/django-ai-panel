@@ -4,6 +4,6 @@ from . import views
 app_name = 'git_integration'
 
 urlpatterns = [
-    path('settings/', views.git_settings, name='settings'),
-    path('repositories/', views.repositories_list, name='repositories'),
+    path('settings/', views.git_settings_view, name='git_settings'),
+    path('repositories/', views.repositories_view, name='repositories'),
 ]
