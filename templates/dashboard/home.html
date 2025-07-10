@@ -2,49 +2,70 @@
 {% block title %}داشبورد - پنل توسعه هوشمند{% endblock %}
 
 {% block content %}
-<hgroup>
-    <h1>داشبورد</h1>
-    <p>خوش آمدید {{ user.get_full_name|default:user.username }}!</p>
-</hgroup>
-
-<div class="grid">
-    <article class="dashboard-stat">
-        <h3>✅</h3>
-        <h4>وضعیت سیستم</h4>
-        <p>فعال</p>
-    </article>
-    
-    <article class="dashboard-stat">
-        <h3>📁</h3>
-        <h4>پروژه‌ها</h4>
-        <p>0 پروژه</p>
-    </article>
-    
-    <article class="dashboard-stat">
-        <h3>🤖</h3>
-        <h4>AI متصل</h4>
-        <p>0 سرویس</p>
-    </article>
-    
-    <article class="dashboard-stat">
-        <h3>🔗</h3>
-        <h4>Git</h4>
-        <p>غیرفعال</p>
-    </article>
-</div>
-
-<section>
-    <h2>شروع سریع</h2>
-    <div class="grid">
-        <a href="{% url 'git_integration:settings' %}" role="button" class="outline">
-            <i class="bi bi-github"></i> تنظیم GitHub
-        </a>
-        <a href="#" role="button" class="outline">
-            <i class="bi bi-robot"></i> اتصال AI
-        </a>
-        <a href="#" role="button" class="outline">
-            <i class="bi bi-terminal"></i> ترمینال
-        </a>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">داشبورد</h1>
+        <p class="page-subtitle">خوش آمدید {{ user.get_full_name|default:user.username }}</p>
     </div>
-</section>
+    
+    <div class="cards-grid">
+        <div class="card">
+            <div class="card-icon success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h3 class="card-title">وضعیت سیستم</h3>
+            <p class="card-value">فعال</p>
+            <p class="card-subtitle">تمام سرویس‌ها در حال اجرا</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-icon primary">
+                <i class="bi bi-folder"></i>
+            </div>
+            <h3 class="card-title">پروژه‌های Git</h3>
+            <p class="card-value">0</p>
+            <p class="card-subtitle">هنوز پروژه‌ای اضافه نشده</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-icon warning">
+                <i class="bi bi-robot"></i>
+            </div>
+            <h3 class="card-title">سرویس‌های AI</h3>
+            <p class="card-value">0</p>
+            <p class="card-subtitle">در انتظار پیکربندی</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-icon info">
+                <i class="bi bi-terminal"></i>
+            </div>
+            <h3 class="card-title">جلسات ترمینال</h3>
+            <p class="card-value">0</p>
+            <p class="card-subtitle">هیچ جلسه فعالی وجود ندارد</p>
+        </div>
+    </div>
+    
+    <div class="quick-actions">
+        <h2>دسترسی سریع</h2>
+        <div class="actions-grid">
+            <a href="{% url 'git_integration:settings' %}" class="action-button">
+                <i class="bi bi-github"></i>
+                <span>اتصال GitHub</span>
+            </a>
+            <a href="#" class="action-button">
+                <i class="bi bi-plus-circle"></i>
+                <span>پروژه جدید</span>
+            </a>
+            <a href="#" class="action-button">
+                <i class="bi bi-terminal-fill"></i>
+                <span>ترمینال جدید</span>
+            </a>
+            <a href="#" class="action-button">
+                <i class="bi bi-gear"></i>
+                <span>تنظیمات</span>
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}

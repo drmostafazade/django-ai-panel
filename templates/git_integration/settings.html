@@ -1,72 +1,69 @@
 {% extends 'base/base.html' %}
-{% block title %}تنظیمات Git{% endblock %}
+{% block title %}تنظیمات GitHub{% endblock %}
 
 {% block content %}
-<hgroup>
-    <h1>تنظیمات GitHub</h1>
-    <p>توکن دسترسی شخصی خود را وارد کنید</p>
-</hgroup>
-
-<div class="grid">
-    <article>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="save_token">
-            
-            <label for="github_token">
-                GitHub Personal Access Token
-                <input type="password" id="github_token" name="github_token" 
-                       placeholder="ghp_xxxxxxxxxxxx"
-                       {% if token %}value="••••••••••"{% endif %}>
-                <small>
-                    <a href="https://github.com/settings/tokens/new" target="_blank">
-                        دریافت توکن جدید از GitHub
-                    </a>
-                </small>
-            </label>
-            
-            <div class="grid">
-                <button type="submit">ذخیره توکن</button>
-                <button type="button" class="secondary" onclick="testConnection()">
-                    تست اتصال
-                </button>
-            </div>
-        </form>
-        
-        {% if token %}
-        <hr>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="sync_repos">
-            <button type="submit" class="contrast">
-                <i class="bi bi-arrow-repeat"></i> همگام‌سازی مخازن
-            </button>
-        </form>
-        {% endif %}
-    </article>
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">تنظیمات GitHub</h1>
+        <p class="page-subtitle">توکن دسترسی شخصی خود را پیکربندی کنید</p>
+    </div>
     
-    <aside>
-        <h3>راهنما</h3>
-        <p>برای دریافت توکن GitHub:</p>
-        <ol>
-            <li>به تنظیمات GitHub بروید</li>
-            <li>Developer settings را انتخاب کنید</li>
-            <li>Personal access tokens → Tokens (classic)</li>
-            <li>Generate new token</li>
-            <li>دسترسی repo را انتخاب کنید</li>
-        </ol>
-    </aside>
+    <div class="form-container">
+        <div class="form-card">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_token">
+                
+                <div class="form-group">
+                    <label class="form-label" for="github_token">
+                        GitHub Personal Access Token
+                    </label>
+                    <input type="password" 
+                           id="github_token" 
+                           name="github_token" 
+                           class="form-input"
+                           placeholder="ghp_xxxxxxxxxxxx"
+                           {% if token %}value="توکن ذخیره شده است"{% endif %}>
+                    <div class="form-help">
+                        <a href="https://github.com/settings/tokens/new" target="_blank" style="color: var(--primary);">
+                            دریافت توکن جدید از GitHub →
+                        </a>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i>
+                        ذخیره توکن
+                    </button>
+                    {% if token %}
+                    <button type="button" class="btn btn-outline" onclick="testConnection()">
+                        <i class="bi bi-wifi"></i>
+                        تست اتصال
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+            
+            {% if token %}
+            <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border);">
+            
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="sync_repos">
+                <button type="submit" class="btn btn-outline">
+                    <i class="bi bi-arrow-repeat"></i>
+                    همگام‌سازی مخازن
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <script>
 function testConnection() {
-    const token = document.getElementById('github_token').value;
-    if (!token) {
-        alert('لطفاً توکن را وارد کنید');
-        return;
-    }
-    // TODO: implement AJAX test
-    alert('در حال تست...');
+    alert('در حال تست اتصال...');
 }
 </script>
 {% endblock %}
