@@ -17,3 +17,10 @@ class Repository(models.Model):
     
     def __str__(self):
         return self.name
+
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+    
+    class Meta:
+        ordering = ['-is_active', 'name']
+        verbose_name_plural = "Repositories"
