@@ -1,0 +1,14 @@
+*.pyc
+__pycache__/
+db.sqlite3
+.env
+venv/
+staticfiles/
+media/
+*.backup.*
+.DS_Store
+.idea/
+.vscode/
+*.log
+db_credentials.txt
+gunicorn.sock
