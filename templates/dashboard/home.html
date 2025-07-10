@@ -2,45 +2,49 @@
 {% block title %}داشبورد - پنل توسعه هوشمند{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2>داشبورد</h2>
-        <p class="text-muted">به پنل توسعه هوشمند بسپار خوش آمدید</p>
-    </div>
+<hgroup>
+    <h1>داشبورد</h1>
+    <p>خوش آمدید {{ user.get_full_name|default:user.username }}!</p>
+</hgroup>
+
+<div class="grid">
+    <article class="dashboard-stat">
+        <h3>✅</h3>
+        <h4>وضعیت سیستم</h4>
+        <p>فعال</p>
+    </article>
+    
+    <article class="dashboard-stat">
+        <h3>📁</h3>
+        <h4>پروژه‌ها</h4>
+        <p>0 پروژه</p>
+    </article>
+    
+    <article class="dashboard-stat">
+        <h3>🤖</h3>
+        <h4>AI متصل</h4>
+        <p>0 سرویس</p>
+    </article>
+    
+    <article class="dashboard-stat">
+        <h3>🔗</h3>
+        <h4>Git</h4>
+        <p>غیرفعال</p>
+    </article>
 </div>
 
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h5 class="card-title">وضعیت سیستم</h5>
-                <p class="card-text">✅ فعال</p>
-            </div>
-        </div>
+<section>
+    <h2>شروع سریع</h2>
+    <div class="grid">
+        <a href="{% url 'git_integration:settings' %}" role="button" class="outline">
+            <i class="bi bi-github"></i> تنظیم GitHub
+        </a>
+        <a href="#" role="button" class="outline">
+            <i class="bi bi-robot"></i> اتصال AI
+        </a>
+        <a href="#" role="button" class="outline">
+            <i class="bi bi-terminal"></i> ترمینال
+        </a>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <h5 class="card-title">پروژه‌ها</h5>
-                <p class="card-text">0 پروژه</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <h5 class="card-title">AI متصل</h5>
-                <p class="card-text">0 سرویس</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title">Git</h5>
-                <p class="card-text">غیرفعال</p>
-            </div>
-        </div>
-    </div>
-</div>
+</section>
 {% endblock %}
