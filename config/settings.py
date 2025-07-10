@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-your-secret-key-here'
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['panel.bsepar.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
