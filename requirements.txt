@@ -26,7 +26,7 @@ msgpack==1.1.1
 packaging==25.0
 paramiko==3.4.0
 prompt_toolkit==3.0.51
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 pycparser==2.22
 PyGithub==2.6.1
 PyJWT==2.10.1

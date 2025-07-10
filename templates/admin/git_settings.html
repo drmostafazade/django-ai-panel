@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<h1>تنظیمات GitHub</h1>
+
+<div style="background: #f9f9f9; padding: 20px; border-radius: 4px; margin-bottom: 20px;">
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 15px;">
+            <label for="github_token" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                GitHub Personal Access Token:
+            </label>
+            <input type="password" 
+                   id="github_token" 
+                   name="github_token" 
+                   style="width: 100%; max-width: 500px; padding: 8px; border: 1px solid #ddd;"
+                   placeholder="ghp_xxxxxxxxxxxx"
+                   {% if token %}value="•••••••••••••••••••••"{% endif %}>
+            <div style="margin-top: 5px; color: #666; font-size: 13px;">
+                <a href="https://github.com/settings/tokens/new" target="_blank">
+                    دریافت توکن جدید از GitHub ←
+                </a>
+            </div>
+        </div>
+        
+        <div>
+            <input type="submit" value="ذخیره توکن" class="default" style="margin-left: 10px;">
+            {% if token %}
+            <a href="{% url 'admin:sync_repos' %}" class="button" style="padding: 10px 15px;">
+                همگام‌سازی مخازن
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{% if token %}
+<div style="background: #e8f5e9; padding: 15px; border-radius: 4px; border: 1px solid #4caf50;">
+    <strong>وضعیت:</strong> توکن ذخیره شده است
+</div>
+{% else %}
+<div style="background: #fff3cd; padding: 15px; border-radius: 4px; border: 1px solid #ffc107;">
+    <strong>توجه:</strong> هنوز توکنی ذخیره نشده است
+</div>
+{% endif %}
+
+<div style="margin-top: 30px;">
+    <h2>راهنمای دریافت توکن</h2>
+    <ol>
+        <li>به <a href="https://github.com/settings/tokens" target="_blank">تنظیمات توکن GitHub</a> بروید</li>
+        <li>روی "Generate new token (classic)" کلیک کنید</li>
+        <li>نام دلخواه وارد کنید</li>
+        <li>حداقل دسترسی <code>repo</code> را انتخاب کنید</li>
+        <li>توکن را کپی و در بالا وارد کنید</li>
+    </ol>
+</div>
+{% endblock %}

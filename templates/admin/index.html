@@ -1,0 +1,15 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block sidebar %}
+{{ block.super }}
+
+<div class="module" style="margin-top: 20px;">
+    <h2>دسترسی سریع</h2>
+    <ul>
+        <li><a href="{% url 'admin:git_settings' %}">⚙️ تنظیمات GitHub</a></li>
+        <li><a href="{% url 'admin:sync_repos' %}">🔄 همگام‌سازی مخازن</a></li>
+        <li><a href="{% url 'admin:git_integration_repository_changelist' %}">📁 مدیریت مخازن</a></li>
+    </ul>
+</div>
+{% endblock %}
