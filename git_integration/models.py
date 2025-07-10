@@ -13,6 +13,8 @@ class Repository(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     full_name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    html_url = models.URLField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     
     def __str__(self):

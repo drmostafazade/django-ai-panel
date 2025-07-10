@@ -1,43 +1,53 @@
 # پنل توسعه هوشمند بسپار
 
-🌐 **آدرس**: https://panel.bsepar.com
+## 🚀 نصب و راه‌اندازی
 
-## معرفی
-پلتفرم جامع مدیریت توسعه نرم‌افزار با استفاده از هوش مصنوعی
-
-## ویژگی‌ها
-- 🤖 یکپارچگی با چندین AI
-- 💻 ترمینال SSH تحت وب
-- 🔄 مدیریت خودکار Git
-- 🧠 سیستم یادگیری از تجربیات
-- 🇮🇷 پشتیبانی کامل زبان فارسی
-
-## مستندات
-- [PROGRESS.md](PROGRESS.md) - سند پیشرفت پروژه
-- [CURRENT_STATUS.md](CURRENT_STATUS.md) - وضعیت فعلی
-
-## 🛠️ نصب و راه‌اندازی
+این پروژه یک پنل توسعه هوشمند با Django است که امکان مدیریت پروژه‌های GitHub را فراهم می‌کند.
 
 ### پیش‌نیازها
-- Python 3.10+
-- PostgreSQL 15+
-- Redis
+- Python 3.12+
+- PostgreSQL 16
 - Nginx
+- Git
 
-### مراحل نصب
+### نصب
 
-cd /var/www/bsepar_panel
+git clone https://github.com/drmostafazade/django-ai-panel.git
+cd django-ai-panel
+python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python manage.py migrate
-python manage.py collectstatic
-bsepar_panel/
-├── ai_manager/          # مدیریت API های AI
-├── terminal_manager/    # ترمینال SSH
-├── dashboard/           # داشبورد اصلی
-├── knowledge_base/      # سیستم یادگیری
-└── ...
-🔄 وضعیت توسعه
+تنظیمات
 
-فاز 1: در حال انجام (30%)
-CURRENT_STATUS.md را برای جزئیات ببینید
+فایل config/db_settings.py را با اطلاعات دیتابیس خود تنظیم کنید
+python manage.py migrate را اجرا کنید
+python manage.py createsuperuser برای ایجاد کاربر ادمین
+python manage.py collectstatic برای جمع‌آوری فایل‌های استاتیک
+
+اجرا
+gunicorn config.wsgi:application --bind unix:/path/to/gunicorn.sock
+📋 ویژگی‌ها
+
+✅ سیستم احراز هویت کامل
+✅ مدیریت توکن GitHub
+✅ همگام‌سازی و مدیریت مخازن
+✅ رابط کاربری فارسی و RTL
+✅ طراحی مشابه Django Admin
+
+🛠️ تکنولوژی‌ها
+
+Django 5.0.1
+PostgreSQL 16
+Python 3.12
+Gunicorn + Nginx
+
+📝 مستندات
+
+PROGRESS.md - پیشرفت پروژه
+CURRENT_STATUS.md - وضعیت فعلی
+CHANGELOG.md - تاریخچه تغییرات
+
+👤 توسعه‌دهنده
+Dr. Mostafazade - GitHub
+📄 لایسنس
+MIT License

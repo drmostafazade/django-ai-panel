@@ -40,6 +40,15 @@
                     </td>
                     <td>
                         <a href="{{ repo.html_url }}" target="_blank">مشاهده در GitHub</a>
+                        |
+                        <form method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="toggle" value="1">
+                            <input type="hidden" name="repo_id" value="{{ repo.id }}">
+                            <button type="submit" style="background: none; border: none; color: blue; cursor: pointer;">
+                                {% if repo.is_active %}غیرفعال{% else %}فعال{% endif %}
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
