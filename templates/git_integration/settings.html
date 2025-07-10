@@ -10,10 +10,15 @@
         <form method="post">
             {% csrf_token %}
             <div class="form-row">
-                {{ form.token.label_tag }}
-                {{ form.token }}
+                <label for="token">GitHub Personal Access Token</label>
+                <input type="password" 
+                       id="token" 
+                       name="token" 
+                       class="form-control"
+                       placeholder="ghp_xxxxxxxxxxxx"
+                       {% if token %}value="توکن ذخیره شده است"{% endif %}>
                 <div class="help-text">
-                    {{ form.token.help_text|safe }}
+                    <a href="https://github.com/settings/tokens/new" target="_blank">دریافت توکن جدید</a>
                 </div>
             </div>
             
@@ -25,26 +30,6 @@
             </a>
             {% endif %}
         </form>
-        
-        {% if token %}
-        <div class="message success" style="margin-top: 20px;">
-            توکن قبلاً ذخیره شده است. برای تغییر، توکن جدید وارد کنید.
-        </div>
-        {% endif %}
-    </div>
-</div>
-
-<div class="module">
-    <h2>راهنمای دریافت توکن</h2>
-    <div class="module-content">
-        <ol>
-            <li>به <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings → Developer settings → Personal access tokens</a> بروید</li>
-            <li>روی "Generate new token (classic)" کلیک کنید</li>
-            <li>نام دلخواه برای توکن انتخاب کنید</li>
-            <li>حداقل دسترسی <code>repo</code> را انتخاب کنید</li>
-            <li>روی "Generate token" کلیک کنید</li>
-            <li>توکن را کپی و در فرم بالا وارد کنید</li>
-        </ol>
     </div>
 </div>
 {% endblock %}
