@@ -39,7 +39,11 @@
                         {% endif %}
                     </td>
                     <td>
+                        {% if repo.html_url %}
                         <a href="{{ repo.html_url }}" target="_blank">مشاهده در GitHub</a>
+                        {% else %}
+                        <a href="https://github.com/drmostafazade/{{ repo.name }}" target="_blank">مشاهده در GitHub</a>
+                        {% endif %}
                         |
                         <form method="post" style="display: inline;">
                             {% csrf_token %}
