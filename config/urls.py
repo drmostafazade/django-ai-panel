@@ -8,4 +8,5 @@ urlpatterns = [
     path('dashboard/', dashboard_view, name='dashboard'),
     path('auth/login/', login_view, name='login'),
     path('auth/logout/', logout_view, name='logout'),
+    path('git/', include('git_integration.urls')),
 ]

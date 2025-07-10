@@ -1,61 +1,52 @@
-{% extends 'base/base.html' %}
+{% extends 'base.html' %}
 {% block title %}مخازن من{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h3>مخازن GitHub</h3>
-        
-        {% if not repos %}
-        <div class="alert alert-info">
-            هیچ مخزنی یافت نشد. 
-            <a href="{% url 'git_integration:settings' %}">ابتدا مخازن را همگام‌سازی کنید</a>
-        </div>
+<h1>مخازن من</h1>
+
+<div style="margin-bottom: 20px;">
+    <form method="post" style="display: inline;">
+        {% csrf_token %}
+        <input type="hidden" name="sync" value="1">
+        <input type="submit" value="🔄 همگام‌سازی با GitHub" class="button">
+    </form>
+    <a href="{% url 'git_integration:settings' %}" class="button secondary">تنظیمات</a>
+</div>
+
+<div class="module">
+    <h2>لیست مخازن ({{ repos.count }})</h2>
+    <div class="module-content">
+        {% if repos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>نام</th>
+                    <th>توضیحات</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for repo in repos %}
+                <tr>
+                    <td><strong>{{ repo.name }}</strong></td>
+                    <td>{{ repo.description|default:"-" }}</td>
+                    <td>
+                        {% if repo.is_active %}
+                            <span style="color: green;">✅ فعال</span>
+                        {% else %}
+                            <span style="color: gray;">⭕ غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ repo.html_url }}" target="_blank">مشاهده در GitHub</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         {% else %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>نام</th>
-                        <th>توضیحات</th>
-                        <th>وضعیت</th>
-                        <th>عملیات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for repo in repos %}
-                    <tr>
-                        <td>
-                            <strong>{{ repo.name }}</strong><br>
-                            <small class="text-muted">{{ repo.full_name }}</small>
-                        </td>
-                        <td>{{ repo.description|default:"بدون توضیحات" }}</td>
-                        <td>
-                            {% if repo.is_active %}
-                            <span class="badge bg-success">فعال</span>
-                            {% else %}
-                            <span class="badge bg-secondary">غیرفعال</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <form method="post" style="display: inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="repo_id" value="{{ repo.id }}">
-                                <button type="submit" class="btn btn-sm btn-primary"
-                                        {% if repo.is_active %}disabled{% endif %}>
-                                    انتخاب
-                                </button>
-                            </form>
-                            <a href="{{ repo.html_url }}" target="_blank" 
-                               class="btn btn-sm btn-outline-secondary">
-                                GitHub
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <p>هیچ مخزنی یافت نشد. روی "همگام‌سازی با GitHub" کلیک کنید.</p>
         {% endif %}
     </div>
 </div>

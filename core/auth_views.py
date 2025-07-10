@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from git_integration.models import GitHubToken, Repository
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('admin:index')
+        return redirect('dashboard')
     
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -15,7 +16,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, f'خوش آمدید {user.get_full_name() or user.username}!')
-            return redirect('admin:index')
+            return redirect('dashboard')
         else:
             messages.error(request, 'نام کاربری یا رمز عبور اشتباه است.')
     
@@ -23,7 +24,11 @@ def login_view(request):
 
 @login_required
 def dashboard_view(request):
-    return redirect('admin:index')
+    context = {
+        'repo_count': Repository.objects.filter(user=request.user).count(),
+        'has_token': GitHubToken.objects.filter(user=request.user).exists(),
+    }
+    return render(request, 'dashboard/home.html', context)
 
 def logout_view(request):
     logout(request)
