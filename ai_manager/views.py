@@ -193,3 +193,7 @@ def test_key(request, key_id):
         
     except APIKey.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'API Key not found'})
+
+# اضافه کردن import logging در ابتدای فایل
+import logging
+logger = logging.getLogger(__name__)
