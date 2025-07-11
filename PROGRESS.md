@@ -1,47 +1,87 @@
-# 🚀 پنل توسعه هوشمند جنگو - سند پیشرفت پروژه
+# Django AI Panel - Progress Tracker
 
-## 🎯 معرفی پروژه
-پلتفرم جامع مدیریت توسعه نرم‌افزار با استفاده از هوش مصنوعی برای خودکارسازی کامل فرآیند برنامه‌نویسی
+## Phase 1: Foundation & Infrastructure (100% ✅)
+- [x] Django 5.2.4 setup with PostgreSQL 16
+- [x] User authentication system (login/logout)
+- [x] Bootstrap 5 UI framework
+- [x] Dashboard with stats
+- [x] Basic navigation structure
+- [x] Admin panel integration
 
-**دامنه**: panel.bsepar.com  
-**مخزن گیت**: https://github.com/drmostafazade/django-ai-panel  
-**تاریخ شروع**: 1403/10/20  
-**توسعه‌دهنده**: دکتر مصطفی‌زاده
+## Phase 2: AI Integration (95% 🚧)
+### Completed:
+- [x] AI Manager app creation
+- [x] Database models for providers & API keys
+- [x] Token usage tracking
+- [x] API key management interface
+- [x] Dynamic model fetching from APIs
+- [x] Connection testing with usage info
+- [x] Delete functionality for API keys
+- [x] Monthly usage statistics
+- [x] Real-time chat with AI
+- [x] Cost calculation for Claude models
 
-## 📊 فازهای توسعه
+### In Progress:
+- [ ] Google Gemini integration
+- [ ] DeepSeek integration
+- [ ] Chat history storage
+- [ ] Export chat functionality
 
-### فاز 1: زیرساخت و پایه ✅ (تکمیل شده)
-**مدت زمان**: 3 روز | **وضعیت**: کامل شد
+## Phase 3: Advanced Features (0% 📋)
+- [ ] Git repository management
+- [ ] Web terminal integration
+- [ ] File manager
+- [ ] Code editor
+- [ ] Project templates
+- [ ] Team collaboration
 
-#### وظایف انجام شده:
-- [x] راه‌اندازی Django 5.2.4 در panel.bsepar.com ✅
-- [x] پیکربندی PostgreSQL 16 ✅
-- [x] پیاده‌سازی احراز هویت Django ✅
-- [x] قالب پایه با پشتیبانی RTL ✅
-- [x] تنظیمات Nginx و Gunicorn ✅
-- [x] نصب گواهی SSL ✅
-- [x] طراحی Material Design ✅
-- [x] 5 صفحه آماده (Dashboard, Git, Terminal, AI, Login) ✅
+## Technical Details
 
-### فاز 2: هسته یکپارچگی هوش مصنوعی 🤖
-**مدت زمان**: 5 روز | **وضعیت**: در حال شروع
+### AI Service Implementation
+- **Claude Models**: Dynamic detection via API testing
+- **OpenAI Models**: Direct API listing
+- **Token Tracking**: Per-request usage logging
+- **Cost Calculation**: Based on official pricing
 
-#### وظایف:
-- [ ] مدل‌های ارائه‌دهنده AI:
-  - [ ] یکپارچگی Claude API
-  - [ ] یکپارچگی OpenAI API
-  - [ ] یکپارچگی Gemini API
-  - [ ] یکپارچگی DeepSeek
-- [ ] سیستم مدیریت کلید API
-- [ ] رابط تست اتصال
-- [ ] منوی انتخاب مدل
-- [ ] ردیابی مصرف توکن
-- [ ] سیستم کش پاسخ
+### Security Features
+- API keys encrypted in database
+- Session-based authentication
+- CSRF protection
+- Input validation
 
-### فاز 3: یکپارچگی ترمینال و SSH 🖥️
-**مدت زمان**: 4 روز | **وضعیت**: شروع نشده
+### API Endpoints
+- `/ai-chat/` - Main chat interface
+- `/ai-chat/settings/` - API key management
+- `/ai-chat/api/chat/` - Chat API endpoint
+- `/ai-chat/get-models/` - Fetch available models
+- `/ai-chat/test-connection/` - Test API connectivity
 
-### فاز 4: مدیریت گیت و پروژه 🗂️
-**مدت زمان**: 4 روز | **وضعیت**: شروع نشده
+### Database Schema
+- **AIProvider**: Service providers (Claude, OpenAI, etc.)
+- **APIKey**: User API keys with metadata
+- **TokenUsage**: Detailed usage tracking
+- **model_info**: JSON field for dynamic model data
 
-... (بقیه فازها)
+### Current Features
+1. **Dynamic Model Discovery**
+   - Claude: Test-based detection
+   - OpenAI: API-based listing
+   
+2. **Usage Tracking**
+   - Token consumption per request
+   - Monthly aggregation
+   - Cost estimation
+   
+3. **Real-time Testing**
+   - Connection validation
+   - Model availability check
+   - Account info display
+
+### Next Steps
+1. Complete remaining AI providers
+2. Add chat history persistence
+3. Implement export functionality
+4. Start Phase 3 development
+
+---
+Last Updated: {{ current_date }}
