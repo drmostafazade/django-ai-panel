@@ -1,124 +1,74 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div style="margin-bottom: 24px;">
-        <h4 style="font-weight: 400; margin: 0;">داشبورد</h4>
-        <p style="color: var(--on-surface-variant); margin: 4px 0 0 0;">خلاصه‌ای از فعالیت‌های شما</p>
-    </div>
-    
-    <!-- Stats Cards -->
-    <div class="row">
-        <div class="col s12 m6 l3">
-            <div class="card">
-                <div class="card-content card-stats">
-                    <i class="material-icons" style="font-size: 48px; color: var(--google-blue);">folder</i>
-                    <p class="card-number" style="color: var(--google-blue);">{{ stats.projects }}</p>
-                    <p class="card-label">پروژه فعال</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col s12 m6 l3">
-            <div class="card">
-                <div class="card-content card-stats">
-                    <i class="material-icons" style="font-size: 48px; color: var(--google-green);">code</i>
-                    <p class="card-number" style="color: var(--google-green);">{{ stats.commits }}</p>
-                    <p class="card-label">کامیت این ماه</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col s12 m6 l3">
-            <div class="card">
-                <div class="card-content card-stats">
-                    <i class="material-icons" style="font-size: 48px; color: var(--google-yellow);">bug_report</i>
-                    <p class="card-number" style="color: var(--google-yellow);">{{ stats.issues }}</p>
-                    <p class="card-label">مسئله باز</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col s12 m6 l3">
-            <div class="card">
-                <div class="card-content card-stats">
-                    <i class="material-icons" style="font-size: 48px; color: var(--google-red);">group</i>
-                    <p class="card-number" style="color: var(--google-red);">{{ stats.users }}</p>
-                    <p class="card-label">همکار</p>
-                </div>
+<h2 class="mb-4">داشبورد</h2>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-folder-fill text-primary" style="font-size: 3rem;"></i>
+                <h3 class="mt-3">{{ stats.projects }}</h3>
+                <p class="text-muted">پروژه فعال</p>
             </div>
         </div>
     </div>
-    
-    <!-- Quick Actions -->
-    <div class="row">
-        <div class="col s12">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">دسترسی سریع</span>
-                    <div class="row">
-                        <div class="col s12 m6 l3">
-                            <a href="{% url 'git' %}" class="btn-large waves-effect waves-light blue darken-1" style="width: 100%;">
-                                <i class="material-icons right">code</i>
-                                Git Manager
-                            </a>
-                        </div>
-                        <div class="col s12 m6 l3">
-                            <a href="{% url 'terminal' %}" class="btn-large waves-effect waves-light green darken-1" style="width: 100%;">
-                                <i class="material-icons right">computer</i>
-                                Terminal
-                            </a>
-                        </div>
-                        <div class="col s12 m6 l3">
-                            <a href="{% url 'ai_chat' %}" class="btn-large waves-effect waves-light purple darken-1" style="width: 100%;">
-                                <i class="material-icons right">psychology</i>
-                                AI Chat
-                            </a>
-                        </div>
-                        <div class="col s12 m6 l3">
-                            <a href="/admin/" class="btn-large waves-effect waves-light orange darken-1" style="width: 100%;">
-                                <i class="material-icons right">settings</i>
-                                Settings
-                            </a>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-git text-success" style="font-size: 3rem;"></i>
+                <h3 class="mt-3">{{ stats.commits }}</h3>
+                <p class="text-muted">کامیت این ماه</p>
             </div>
         </div>
     </div>
-    
-    <!-- Recent Activity -->
-    <div class="row">
-        <div class="col s12">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">فعالیت‌های اخیر</span>
-                    <table class="striped">
-                        <thead>
-                            <tr>
-                                <th>نوع</th>
-                                <th>عنوان</th>
-                                <th>زمان</th>
-                                <th>وضعیت</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><i class="material-icons tiny" style="color: var(--google-green);">code</i> Commit</td>
-                                <td>بروزرسانی dashboard UI</td>
-                                <td>5 دقیقه پیش</td>
-                                <td><span class="badge green white-text" style="border-radius: 12px;">موفق</span></td>
-                            </tr>
-                            <tr>
-                                <td><i class="material-icons tiny" style="color: var(--google-blue);">chat</i> AI Chat</td>
-                                <td>پیاده‌سازی Claude API</td>
-                                <td>1 ساعت پیش</td>
-                                <td><span class="badge blue white-text" style="border-radius: 12px;">در حال توسعه</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-bug-fill text-warning" style="font-size: 3rem;"></i>
+                <h3 class="mt-3">{{ stats.issues }}</h3>
+                <p class="text-muted">مسئله باز</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-people-fill text-danger" style="font-size: 3rem;"></i>
+                <h3 class="mt-3">{{ stats.users }}</h3>
+                <p class="text-muted">همکار</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">دسترسی سریع</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <a href="/ai-chat/" class="btn btn-primary w-100">
+                    <i class="bi bi-robot"></i> چت با AI
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="/git/" class="btn btn-success w-100">
+                    <i class="bi bi-git"></i> مدیریت Git
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="/terminal/" class="btn btn-info w-100">
+                    <i class="bi bi-terminal"></i> ترمینال
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="/admin/" class="btn btn-warning w-100">
+                    <i class="bi bi-gear"></i> تنظیمات
+                </a>
             </div>
         </div>
     </div>

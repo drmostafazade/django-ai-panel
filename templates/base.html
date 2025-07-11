@@ -3,295 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}پنل مدیریت بسپار{% endblock %}</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="/static/css/material-icons.css" rel="stylesheet">
-    
-    <!-- Materialize CSS -->
-    <link rel="stylesheet" href="/static/css/materialize.min.css">
-    
+    <title>{% block title %}پنل مدیریت{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-icons.css">
     <style>
-        :root {
-            --google-blue: #1a73e8;
-            --google-red: #ea4335;
-            --google-yellow: #fbbc04;
-            --google-green: #34a853;
-            --background: #f8f9fa;
-            --surface: #ffffff;
-            --on-surface: #202124;
-            --on-surface-variant: #5f6368;
-        }
-        
-        * {
-            font-family: 'Vazirmatn', 'Google Sans', 'Roboto', sans-serif;
-        }
-        
         body {
-            background-color: var(--background);
-            color: var(--on-surface);
-            direction: rtl;
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            background-color: #f8f9fa;
         }
-        
-        /* Google-style Navbar */
-        nav {
-            background-color: var(--surface);
-            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.08);
-            height: 64px;
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
         }
-        
-        nav .brand-logo {
-            color: var(--on-surface);
-            font-size: 22px;
-            font-weight: 400;
-            padding-right: 24px;
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background: white;
+            border-left: 1px solid #dee2e6;
         }
-        
-        nav ul a {
-            color: var(--on-surface-variant);
+        .sidebar .nav-link {
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 2px 10px;
         }
-        
-        nav ul a:hover {
-            background-color: rgba(60,64,67,0.08);
+        .sidebar .nav-link:hover {
+            background-color: #f8f9fa;
         }
-        
-        /* Google-style Sidenav */
-        .sidenav {
-            width: 280px;
-            background-color: var(--surface);
-            padding-top: 0;
-        }
-        
-        .sidenav li > a {
-            color: var(--on-surface);
-            font-size: 14px;
-            font-weight: 500;
-            height: 48px;
-            line-height: 48px;
-            padding: 0 24px;
-        }
-        
-        .sidenav li > a:hover {
-            background-color: rgba(60,64,67,0.04);
-            border-radius: 0 24px 24px 0;
-            margin-left: 8px;
-        }
-        
-        .sidenav li > a.active {
-            background-color: #e8f0fe;
-            color: var(--google-blue);
-            border-radius: 0 24px 24px 0;
-            margin-left: 8px;
-        }
-        
-        .sidenav li > a > i {
-            margin: 0 0 0 24px;
-            color: var(--on-surface-variant);
-        }
-        
-        .sidenav li > a.active > i {
-            color: var(--google-blue);
-        }
-        
-        /* Main Content */
-        .main-content {
-            padding: 24px;
-        }
-        
-        @media only screen and (min-width: 993px) {
-            .main-content {
-                margin-right: 280px;
-            }
-        }
-        
-        /* Google-style Cards */
-        .card {
-            border-radius: 8px;
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-            transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card:hover {
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
-        }
-        
-        .card .card-title {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--on-surface);
-        }
-        
-        .card-stats {
-            text-align: center;
-        }
-        
-        .card-stats .card-number {
-            font-size: 48px;
-            font-weight: 300;
-            line-height: 1;
-            margin: 16px 0;
-        }
-        
-        .card-stats .card-label {
-            font-size: 14px;
-            color: var(--on-surface-variant);
-        }
-        
-        /* Google-style Buttons */
-        .btn, .btn-large {
-            border-radius: 4px;
-            text-transform: none;
-            font-weight: 500;
-            letter-spacing: 0.25px;
-            box-shadow: none;
-        }
-        
-        .btn:hover, .btn-large:hover {
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-        }
-        
-        .btn-google-blue {
-            background-color: var(--google-blue) !important;
-        }
-        
-        .btn-google-red {
-            background-color: var(--google-red) !important;
-        }
-        
-        .btn-google-green {
-            background-color: var(--google-green) !important;
-        }
-        
-        .btn-google-yellow {
-            background-color: var(--google-yellow) !important;
-            color: var(--on-surface) !important;
-        }
-        
-        /* Logo Section */
-        .logo-section {
-            padding: 24px;
-            text-align: center;
-            border-bottom: 1px solid rgba(0,0,0,0.12);
-        }
-        
-        .logo-section img {
-            height: 32px;
-        }
-        
-        /* User Section */
-        .user-section {
-            padding: 16px 24px;
-            border-bottom: 1px solid rgba(0,0,0,0.12);
-            display: flex;
-            align-items: center;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--google-blue);
+        .sidebar .nav-link.active {
+            background-color: #0d6efd;
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 12px;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0 20px rgba(0,0,0,.08);
+            margin-bottom: 20px;
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Navbar -->
-    <nav>
-        <div class="nav-wrapper">
-            <a href="/" class="brand-logo">
-                <span style="color: #4285f4;">پنل</span>
-                <span style="color: #ea4335;">مدیریت</span>
-                <span style="color: #fbbc04;">بسپار</span>
-            </a>
-            <a href="#" data-target="mobile-nav" class="sidenav-trigger">
-                <i class="material-icons" style="color: var(--on-surface);">menu</i>
-            </a>
-            <ul class="left hide-on-med-and-down">
-                {% if user.is_authenticated %}
-                <li>
-                    <a href="/admin/" style="display: flex; align-items: center;">
-                        <div class="user-avatar" style="font-size: 16px; margin-left: 8px;">
-                            {{ user.username|first|upper }}
-                        </div>
-                        {{ user.username }}
-                    </a>
-                </li>
-                {% else %}
-                <li><a href="/login/" class="btn btn-google-blue">ورود</a></li>
-                {% endif %}
-            </ul>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">پنل مدیریت بسپار</a>
+            {% if user.is_authenticated %}
+            <div class="ms-auto">
+                <span class="navbar-text me-3">{{ user.username }}</span>
+                <a href="/logout/" class="btn btn-sm btn-outline-danger">خروج</a>
+            </div>
+            {% endif %}
         </div>
     </nav>
 
-    <!-- Desktop Sidenav -->
-    <ul class="sidenav sidenav-fixed" id="desktop-nav">
-        <li class="logo-section">
-            <img src="https://www.gstatic.com/images/branding/product/2x/google_cloud_48dp.png" alt="Logo">
-        </li>
-        {% if user.is_authenticated %}
-        <li class="user-section">
-            <div class="user-avatar">{{ user.username|first|upper }}</div>
-            <div>
-                <div style="font-weight: 500;">{{ user.username }}</div>
-                <div style="font-size: 12px; color: var(--on-surface-variant);">{{ user.email|default:"admin@bsepar.com" }}</div>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <nav class="nav flex-column py-3">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="/">
+                        <i class="bi bi-speedometer2"></i> داشبورد
+                    </a>
+                    <a class="nav-link {% if 'ai' in request.path %}active{% endif %}" href="/ai-chat/">
+                        <i class="bi bi-robot"></i> چت AI
+                    </a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'git' %}active{% endif %}" href="/git/">
+                        <i class="bi bi-git"></i> مدیریت Git
+                    </a>
+                    <a class="nav-link {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}" href="/terminal/">
+                        <i class="bi bi-terminal"></i> ترمینال
+                    </a>
+                    <hr>
+                    <a class="nav-link" href="/admin/">
+                        <i class="bi bi-gear"></i> پنل ادمین
+                    </a>
+                </nav>
             </div>
-        </li>
-        {% endif %}
-        <li><a href="/" class="waves-effect {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-            <i class="material-icons">dashboard</i>داشبورد
-        </a></li>
-        <li><a href="/git/" class="waves-effect {% if request.resolver_match.url_name == 'git' %}active{% endif %}">
-            <i class="material-icons">code</i>مدیریت Git
-        </a></li>
-        <li><a href="/terminal/" class="waves-effect {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
-            <i class="material-icons">computer</i>ترمینال
-        </a></li>
-        <li><a href="/ai/" class="waves-effect {% if request.resolver_match.url_name == 'ai' %}active{% endif %}">
-            <i class="material-icons">psychology</i>هوش مصنوعی
-        </a></li>
-        <li class="divider" style="margin: 8px 0;"></li>
-        <li><a href="/admin/" class="waves-effect">
-            <i class="material-icons">settings</i>تنظیمات
-        </a></li>
-        {% if user.is_authenticated %}
-        <li><a href="/logout/" class="waves-effect">
-            <i class="material-icons">exit_to_app</i>خروج
-        </a></li>
-        {% endif %}
-    </ul>
 
-    <!-- Mobile Sidenav -->
-    <ul class="sidenav" id="mobile-nav">
-        <!-- Same content as desktop -->
-    </ul>
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Scripts -->
-    <script src="/static/js/materialize.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize components
-            M.Sidenav.init(document.querySelectorAll('.sidenav'), {edge: 'right'});
-            M.Tooltip.init(document.querySelectorAll('.tooltipped'));
-            M.FloatingActionButton.init(document.querySelectorAll('.fixed-action-btn'));
-            
-            // Initialize textareas
-            M.textareaAutoResize(document.querySelector('#ai-input'));
-        });
-    </script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
