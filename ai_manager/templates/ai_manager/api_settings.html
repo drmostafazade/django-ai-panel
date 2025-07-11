@@ -63,12 +63,6 @@
                                             GPT-4o, GPT-4 Turbo, GPT-3.5
                                             {% elif provider.name == 'gemini' %}
                                             Gemini Pro, Gemini 1.5
-                                            {% elif provider.name == 'groq' %}
-                                            Llama 3, Mixtral, Gemma
-                                            {% elif provider.name == 'deepseek' %}
-                                            DeepSeek Chat & Coder
-                                            {% elif provider.name == 'github' %}
-                                            GitHub Copilot Models
                                             {% endif %}
                                         </small>
                                     </label>
@@ -88,7 +82,7 @@
                             <button type="button" class="btn btn-outline-secondary" onclick="toggleKeyVisibility()">
                                 <i class="bi bi-eye" id="keyVisibilityIcon"></i>
                             </button>
-                            <button type="button" class="btn btn-primary" onclick="fetchModels()" id="fetchModelsBtn">
+                            <button type="button" class="btn btn-primary" onclick="fetchModels()">
                                 <i class="bi bi-cloud-download"></i> دریافت مدل‌ها
                             </button>
                         </div>
@@ -111,12 +105,6 @@
                         </div>
                     </div>
                     
-                    <!-- Account Info -->
-                    <div id="accountInfo" class="alert alert-info d-none mb-3">
-                        <h6>اطلاعات حساب:</h6>
-                        <div id="accountDetails"></div>
-                    </div>
-                    
                     <!-- Connection Status -->
                     <div id="connectionStatus" class="alert d-none mb-3">
                         <div class="d-flex align-items-center">
@@ -128,7 +116,7 @@
                     
                     <!-- Action Buttons -->
                     <div class="d-flex gap-2" id="actionButtons" style="display: none;">
-                        <button type="button" class="btn btn-secondary" onclick="testConnection()" id="testBtn">
+                        <button type="button" class="btn btn-secondary" onclick="testConnection()">
                             <i class="bi bi-plug"></i> تست اتصال
                         </button>
                         <button type="submit" class="btn btn-success" id="saveBtn" disabled>
@@ -167,11 +155,17 @@
                                 </td>
                                 <td>
                                     <code class="small">{{ key.model_name|default:"-" }}</code>
+                                    {% if key.model_info.features %}
+                                    <br>
+                                    {% for feature in key.model_info.features %}
+                                    <span class="badge bg-info">{{ feature }}</span>
+                                    {% endfor %}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if key.is_active %}
                                         {% if key.is_verified %}
-                                        <span class="badge bg-success">✓ فعال</span>
+                                        <span class="badge bg-success">✓ فعال و تست شده</span>
                                         {% else %}
                                         <span class="badge bg-warning">⚠ تست نشده</span>
                                         {% endif %}
@@ -180,13 +174,25 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <small>{{ key.used_tokens|floatformat:0 }} توکن</small>
+                                    <small>
+                                        {{ key.used_tokens|floatformat:0 }} توکن
+                                        {% if key.model_info.pricing %}
+                                        <br>
+                                        <span class="text-muted">
+                                            ~${{ key.used_tokens|floatformat:0 }}
+                                        </span>
+                                        {% endif %}
+                                    </small>
                                 </td>
                                 <td>
                                     <small>{{ key.last_used|date:"Y/m/d H:i"|default:"هرگز" }}</small>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
+                                        <button onclick="showKeyDetails({{ key.id }})" 
+                                                class="btn btn-outline-info" title="جزئیات">
+                                            <i class="bi bi-info-circle"></i>
+                                        </button>
                                         <button onclick="retestKey({{ key.id }})" 
                                                 class="btn btn-outline-primary" title="تست مجدد">
                                             <i class="bi bi-arrow-clockwise"></i>
@@ -219,6 +225,7 @@
                 <div class="text-center py-5">
                     <i class="bi bi-key" style="font-size: 3rem; color: #ddd;"></i>
                     <p class="text-muted mt-3">هنوز API Key ای ذخیره نکرده‌اید</p>
+                    <p class="text-muted">برای شروع، از فرم بالا استفاده کنید</p>
                 </div>
                 {% endif %}
             </div>
@@ -242,39 +249,98 @@
                         <small class="text-muted">هزینه تقریبی</small>
                     </div>
                 </div>
+                
+                <hr>
+                
+                <h6 class="mb-2">توزیع مصرف:</h6>
+                <div id="usageChart" style="height: 150px;">
+                    <!-- نمودار مصرف -->
+                </div>
             </div>
         </div>
         
-        <!-- راهنما -->
-        <div class="card">
+        <!-- راهنمای سریع -->
+        <div class="card mb-3">
             <div class="card-header bg-info text-white">
                 <h6 class="mb-0">🚀 راهنمای سریع</h6>
             </div>
             <div class="card-body small">
                 <h6>دریافت API Key:</h6>
                 <ul class="ps-3">
-                    <li><strong>Claude:</strong> <a href="https://console.anthropic.com/api" target="_blank">console.anthropic.com</a></li>
-                    <li><strong>OpenAI:</strong> <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></li>
-                    <li><strong>Gemini:</strong> <a href="https://makersuite.google.com/app/apikey" target="_blank">makersuite.google.com</a></li>
-                    <li><strong>Groq:</strong> <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a></li>
-                    <li><strong>DeepSeek:</strong> <a href="https://platform.deepseek.com/api_keys" target="_blank">platform.deepseek.com</a></li>
+                    <li>
+                        <strong>Claude:</strong>
+                        <a href="https://console.anthropic.com/api" target="_blank">
+                            console.anthropic.com <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <strong>OpenAI:</strong>
+                        <a href="https://platform.openai.com/api-keys" target="_blank">
+                            platform.openai.com <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <strong>Google:</strong>
+                        <a href="https://makersuite.google.com/app/apikey" target="_blank">
+                            makersuite.google.com <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="alert alert-warning py-2 mt-3">
+                    <strong>⚠️ نکات امنیتی:</strong>
+                    <ul class="mb-0 ps-3">
+                        <li>API Key را محرمانه نگه دارید</li>
+                        <li>برای هر پروژه Key جداگانه بسازید</li>
+                        <li>محدودیت‌های usage را تنظیم کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ویژگی‌های جدید -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0">✨ ویژگی‌های جدید</h6>
+            </div>
+            <div class="card-body small">
+                <ul class="ps-3 mb-0">
+                    <li>پشتیبانی از آخرین مدل‌های Claude 3.5, 3.7, Opus 4</li>
+                    <li>دریافت خودکار لیست مدل‌ها</li>
+                    <li>نمایش توکن‌های مصرفی</li>
+                    <li>محاسبه هزینه تقریبی</li>
+                    <li>تست اتصال پیشرفته</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal for Key Details -->
+<div class="modal fade" id="keyDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">جزئیات API Key</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="keyDetailsContent">
+                <!-- محتوا به صورت dynamic -->
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-// متغیرهای global
 let selectedModel = null;
 let currentStep = 1;
-let modelsData = [];
 
 function updateProgress(step) {
     currentStep = step;
     const progress = step * 20;
     document.getElementById('progressBar').style.width = progress + '%';
     
+    // Update step badges
     for (let i = 1; i <= 5; i++) {
         const badge = document.getElementById(`step${i}`);
         if (i <= step) {
@@ -323,7 +389,6 @@ async function fetchModels() {
     // Show loading
     document.getElementById('loadingSection').style.display = 'block';
     document.getElementById('modelSection').style.display = 'none';
-    document.getElementById('accountInfo').classList.add('d-none');
     updateProgress(3);
     
     try {
@@ -331,7 +396,7 @@ async function fetchModels() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
                 provider: providerName,
@@ -344,22 +409,19 @@ async function fetchModels() {
         document.getElementById('loadingSection').style.display = 'none';
         
         if (data.success) {
-            modelsData = data.models;
             displayModels(data.models);
             updateProgress(4);
             
             // نمایش اطلاعات حساب
-            if (data.account_info && Object.keys(data.account_info).length > 0) {
-                showAccountInfo(data.account_info, providerName);
+            if (data.account_info) {
+                showAccountInfo(data.account_info);
             }
         } else {
             alert(`خطا: ${data.error}`);
-            updateProgress(2);
         }
     } catch (error) {
         document.getElementById('loadingSection').style.display = 'none';
-        alert('خطا در ارتباط با سرور: ' + error);
-        updateProgress(2);
+        alert('خطا در ارتباط با سرور');
     }
 }
 
@@ -371,7 +433,6 @@ function displayModels(models) {
     
     models.forEach((model, index) => {
         const available = model.available !== false;
-        
         const card = document.createElement('div');
         card.className = 'col-md-6';
         card.innerHTML = `
@@ -381,7 +442,7 @@ function displayModels(models) {
                         <input class="form-check-input" type="radio" name="model_name" 
                                value="${model.id}" id="model_${index}"
                                ${available ? '' : 'disabled'}
-                               onchange="selectModel('${model.id}', ${index})">
+                               onchange="selectModel('${model.id}', ${JSON.stringify(model).replace(/"/g, '&quot;')})">
                         <label class="form-check-label w-100" for="model_${index}">
                             <strong>${model.name || model.id}</strong>
                             ${model.description ? `<br><small class="text-muted">${model.description}</small>` : ''}
@@ -410,50 +471,37 @@ function displayModels(models) {
 }
 
 function selectModel(modelId, modelInfo) {
-    selectedModel = JSON.parse(decodeURIComponent(modelInfo));
-    document.getElementById("model_info").value = JSON.stringify(selectedModel);
+    selectedModel = modelInfo;
+    document.getElementById('model_info').value = JSON.stringify(modelInfo);
     updateProgress(5);
 }
 
-function showAccountInfo(accountInfo, providerName) {
-    const accountDiv = document.getElementById('accountInfo');
-    const accountDetails = document.getElementById('accountDetails');
-    
-    let details = '';
-    
-    if (accountInfo.api_key_valid) {
-        details += `<p class="mb-1"><strong>وضعیت API Key:</strong> <span class="text-success">✓ معتبر</span></p>`;
-    }
+function showAccountInfo(accountInfo) {
+    let info = '<div class="alert alert-info mb-3"><strong>اطلاعات حساب:</strong><br>';
     
     if (accountInfo.organization) {
-        details += `<p class="mb-1"><strong>سازمان:</strong> ${accountInfo.organization}</p>`;
+        info += `سازمان: ${accountInfo.organization}<br>`;
     }
     
     if (accountInfo.usage_info) {
         if (accountInfo.usage_info.subscription) {
             const sub = accountInfo.usage_info.subscription;
-            details += `<p class="mb-1"><strong>طرح:</strong> ${sub.plan?.title || 'نامشخص'}</p>`;
-            if (sub.hard_limit_usd) {
-                details += `<p class="mb-1"><strong>محدودیت:</strong> $${sub.hard_limit_usd}</p>`;
-            }
+            info += `طرح: ${sub.plan?.title || 'نامشخص'}<br>`;
+            info += `محدودیت: $${sub.hard_limit_usd || 0}<br>`;
         }
         
         if (accountInfo.usage_info.usage) {
             const usage = accountInfo.usage_info.usage;
-            details += `<p class="mb-1"><strong>مصرف این ماه:</strong> $${(usage.total_usage || 0).toFixed(2)}</p>`;
+            info += `مصرف این ماه: $${usage.total_usage?.toFixed(2) || 0}<br>`;
         }
     }
     
-    if (accountInfo.rate_limits) {
-        details += `<p class="mb-1"><strong>محدودیت نرخ:</strong> ${accountInfo.rate_limits}</p>`;
-    }
+    info += '</div>';
     
-    if (!details) {
-        details = '<p class="mb-0 text-muted">اطلاعات حساب موجود نیست</p>';
-    }
-    
-    accountDetails.innerHTML = details;
-    accountDiv.classList.remove('d-none');
+    // نمایش در بخش وضعیت
+    const statusDiv = document.getElementById('connectionStatus');
+    statusDiv.innerHTML = info;
+    statusDiv.classList.remove('d-none');
 }
 
 async function testConnection() {
@@ -484,7 +532,7 @@ async function testConnection() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
                 provider: provider,
@@ -500,20 +548,18 @@ async function testConnection() {
             statusDiv.className = 'alert alert-success';
             statusText.innerHTML = '✓ اتصال موفق!';
             
-            let details = '<strong>جزئیات تست:</strong><br>';
+            let details = '<strong>جزئیات:</strong><br>';
             details += `مدل: ${data.model}<br>`;
             
             if (data.usage) {
-                details += `توکن‌های تست: ${data.usage.total_tokens || 0}<br>`;
+                details += `توکن‌های تست: ${data.usage.total_tokens}<br>`;
                 if (data.usage.estimated_cost) {
                     details += `هزینه تست: ${data.usage.estimated_cost}<br>`;
                 }
             }
             
             if (data.limits) {
-                if (data.limits.context_window) {
-                    details += `Context Window: ${data.limits.context_window.toLocaleString()}<br>`;
-                }
+                details += `Context Window: ${data.limits.context_window?.toLocaleString() || 'نامشخص'}<br>`;
             }
             
             if (data.features && data.features.length > 0) {
@@ -530,7 +576,7 @@ async function testConnection() {
     } catch (error) {
         spinner.classList.add('d-none');
         statusDiv.className = 'alert alert-danger';
-        statusText.textContent = '✗ خطا در ارتباط با سرور: ' + error;
+        statusText.textContent = '✗ خطا در ارتباط با سرور';
         saveBtn.disabled = true;
     }
 }
@@ -543,7 +589,7 @@ async function retestKey(keyId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({ key_id: keyId })
         });
@@ -560,20 +606,20 @@ async function retestKey(keyId) {
     }
 }
 
-// تابع کمکی برای دریافت CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+function showKeyDetails(keyId) {
+    // اینجا می‌توانید جزئیات بیشتر را نمایش دهید
+    const modal = new bootstrap.Modal(document.getElementById('keyDetailsModal'));
+    document.getElementById('keyDetailsContent').innerHTML = `
+        <p>در حال بارگذاری...</p>
+    `;
+    modal.show();
+    
+    // TODO: دریافت جزئیات از سرور
 }
+
+// نمودار مصرف (اختیاری)
+document.addEventListener('DOMContentLoaded', function() {
+    // می‌توانید با Chart.js یا کتابخانه دیگری نمودار بکشید
+});
 </script>
 {% endblock %}

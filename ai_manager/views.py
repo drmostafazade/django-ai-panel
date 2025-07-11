@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from .services import AIService, AIModelRegistry
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
