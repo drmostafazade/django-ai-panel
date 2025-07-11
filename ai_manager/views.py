@@ -347,3 +347,137 @@ def chat_view(request):
     }
     
     return render(request, 'ai_manager/chat.html', context)
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+import json
+
+@login_required
+def get_token_balance(request, key_id):
+    """دریافت موجودی توکن برای یک API key"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        # دریافت موجودی از سرویس
+        balance_info = AIService.get_token_balance(
+            api_key.provider.name,
+            api_key.key
+        )
+        
+        if balance_info['success']:
+            # تعیین نوع موجودی
+            if balance_info.get('balance') == 'نامحدود':
+                return JsonResponse({
+                    'success': True,
+                    'balance_type': 'unlimited',
+                    'rate_limit': balance_info.get('rate_limit', ''),
+                    'plan': balance_info.get('plan', '')
+                })
+            elif isinstance(balance_info.get('balance'), (int, float)):
+                return JsonResponse({
+                    'success': True,
+                    'balance_type': 'numeric',
+                    'balance': balance_info['balance'],
+                    'used': balance_info.get('used', 0),
+                    'plan': balance_info.get('plan', '')
+                })
+            else:
+                return JsonResponse({
+                    'success': True,
+                    'balance_type': 'text',
+                    'balance': str(balance_info.get('balance', 'نامشخص')),
+                    'plan': balance_info.get('plan', '')
+                })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': balance_info.get('error', 'خطا در دریافت موجودی')
+            })
+            
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key یافت نشد'})
+
+@login_required
+@require_http_methods(["POST"])
+def test_api_connection(request, key_id):
+    """تست اتصال API"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        result = AIService.test_api_key(
+            api_key.provider.name,
+            api_key.key,
+            api_key.model_name
+        )
+        
+        if result['success']:
+            api_key.is_verified = True
+            api_key.last_tested = timezone.now()
+            api_key.save()
+        
+        return JsonResponse(result)
+        
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key یافت نشد'})
+
+@login_required
+def personal_settings_view(request, key_id):
+    """نمایش و ذخیره تنظیمات personal"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        if request.method == 'POST':
+            # ذخیره تنظیمات
+            data = json.loads(request.body)
+            api_key.personal_prompts = data
+            api_key.save()
+            return JsonResponse({'success': True})
+        
+        # نمایش فرم
+        return render(request, 'ai_manager/partials/personal_settings.html', {
+            'api_key': api_key,
+            'settings': api_key.personal_prompts or {}
+        })
+        
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key یافت نشد'})
+
+@login_required
+def prompt_manager_view(request, key_id):
+    """مدیریت prompts"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        if request.method == 'POST':
+            # اضافه کردن prompt جدید
+            data = json.loads(request.body)
+            PersonalPrompt.objects.create(
+                api_key=api_key,
+                title=data['title'],
+                content=data['content'],
+                category=data.get('category', 'general')
+            )
+            return JsonResponse({'success': True})
+        
+        # نمایش لیست prompts
+        prompts = api_key.prompts.all()
+        return render(request, 'ai_manager/partials/prompt_manager.html', {
+            'api_key': api_key,
+            'prompts': prompts
+        })
+        
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key یافت نشد'})
+
+@login_required
+def key_details_view(request, key_id):
+    """نمایش جزئیات کامل API key"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        return render(request, 'ai_manager/partials/key_details.html', {
+            'api_key': api_key
+        })
+        
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key یافت نشد'})
