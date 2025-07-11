@@ -65,3 +65,13 @@ def save_api_key(request):
         return redirect('api_settings')
     
     return redirect('api_settings')
+
+@login_required
+def chat_api(request):
+    """Simple chat API endpoint"""
+    from django.http import JsonResponse
+    
+    if request.method == 'POST':
+        return JsonResponse({'message': 'API در حال توسعه است'})
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
