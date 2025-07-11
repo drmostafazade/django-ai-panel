@@ -409,9 +409,9 @@ function displayModels(models) {
     document.getElementById('actionButtons').style.display = 'flex';
 }
 
-function selectModel(modelId, index) {
-    selectedModel = modelsData[index];
-    document.getElementById('model_info').value = JSON.stringify(selectedModel);
+function selectModel(modelId, modelInfo) {
+    selectedModel = JSON.parse(decodeURIComponent(modelInfo));
+    document.getElementById("model_info").value = JSON.stringify(selectedModel);
     updateProgress(5);
 }
 

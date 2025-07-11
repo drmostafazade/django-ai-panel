@@ -5,7 +5,6 @@ import json
 
 class AIProvider(models.Model):
     PROVIDER_CHOICES = [        ('claude', 'Claude (Anthropic)'),        ('openai', 'OpenAI (GPT)'),        ('gemini', 'Google Gemini'),        ('deepseek', 'DeepSeek'),        ('groq', 'Groq'),        ('github', 'GitHub Copilot'),        ('cohere', 'Cohere'),        ('mistral', 'Mistral AI'),    ]
-        ordering = ['-created_at']
 
 class TokenUsage(models.Model):
     api_key = models.ForeignKey(APIKey, on_delete=models.CASCADE, related_name='usage')
