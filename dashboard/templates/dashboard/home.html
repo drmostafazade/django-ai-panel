@@ -51,54 +51,54 @@
         </div>
     </div>
     
-    <!-- Activity Chart & Quick Actions -->
+    <!-- Quick Actions -->
     <div class="row">
-        <div class="col s12 l8">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">فعالیت‌های اخیر</span>
-                    <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: var(--background); border-radius: 4px; margin-top: 16px;">
-                        <canvas id="activity-chart" style="max-height: 280px;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col s12 l4">
+        <div class="col s12">
             <div class="card">
                 <div class="card-content">
                     <span class="card-title">دسترسی سریع</span>
-                    <div style="margin-top: 24px;">
-                        <a href="/git/" class="btn-large waves-effect btn-google-blue" style="width: 100%; margin-bottom: 12px;">
-                            <i class="material-icons right">code</i>
-                            ایجاد Repository
-                        </a>
-                        <a href="/terminal/" class="btn-large waves-effect btn-google-green" style="width: 100%; margin-bottom: 12px;">
-                            <i class="material-icons right">computer</i>
-                            باز کردن Terminal
-                        </a>
-                        <a href="/ai/" class="btn-large waves-effect btn-google-red" style="width: 100%; margin-bottom: 12px;">
-                            <i class="material-icons right">psychology</i>
-                            چت با AI
-                        </a>
+                    <div class="row">
+                        <div class="col s12 m6 l3">
+                            <a href="{% url 'git' %}" class="btn-large waves-effect waves-light blue darken-1" style="width: 100%;">
+                                <i class="material-icons right">code</i>
+                                Git Manager
+                            </a>
+                        </div>
+                        <div class="col s12 m6 l3">
+                            <a href="{% url 'terminal' %}" class="btn-large waves-effect waves-light green darken-1" style="width: 100%;">
+                                <i class="material-icons right">computer</i>
+                                Terminal
+                            </a>
+                        </div>
+                        <div class="col s12 m6 l3">
+                            <a href="{% url 'ai_chat' %}" class="btn-large waves-effect waves-light purple darken-1" style="width: 100%;">
+                                <i class="material-icons right">psychology</i>
+                                AI Chat
+                            </a>
+                        </div>
+                        <div class="col s12 m6 l3">
+                            <a href="/admin/" class="btn-large waves-effect waves-light orange darken-1" style="width: 100%;">
+                                <i class="material-icons right">settings</i>
+                                Settings
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Recent Items -->
+    <!-- Recent Activity -->
     <div class="row">
         <div class="col s12">
             <div class="card">
                 <div class="card-content">
-                    <span class="card-title">آخرین فعالیت‌ها</span>
+                    <span class="card-title">فعالیت‌های اخیر</span>
                     <table class="striped">
                         <thead>
                             <tr>
                                 <th>نوع</th>
                                 <th>عنوان</th>
-                                <th>پروژه</th>
                                 <th>زمان</th>
                                 <th>وضعیت</th>
                             </tr>
@@ -107,23 +107,14 @@
                             <tr>
                                 <td><i class="material-icons tiny" style="color: var(--google-green);">code</i> Commit</td>
                                 <td>بروزرسانی dashboard UI</td>
-                                <td>Django Panel</td>
                                 <td>5 دقیقه پیش</td>
                                 <td><span class="badge green white-text" style="border-radius: 12px;">موفق</span></td>
                             </tr>
                             <tr>
-                                <td><i class="material-icons tiny" style="color: var(--google-blue);">merge_type</i> PR</td>
-                                <td>اضافه کردن قابلیت جدید</td>
-                                <td>API Project</td>
-                                <td>2 ساعت پیش</td>
-                                <td><span class="badge orange white-text" style="border-radius: 12px;">در انتظار</span></td>
-                            </tr>
-                            <tr>
-                                <td><i class="material-icons tiny" style="color: var(--google-yellow);">bug_report</i> Issue</td>
-                                <td>رفع باگ در سیستم ورود</td>
-                                <td>Main Website</td>
-                                <td>1 روز پیش</td>
-                                <td><span class="badge blue white-text" style="border-radius: 12px;">در حال بررسی</span></td>
+                                <td><i class="material-icons tiny" style="color: var(--google-blue);">chat</i> AI Chat</td>
+                                <td>پیاده‌سازی Claude API</td>
+                                <td>1 ساعت پیش</td>
+                                <td><span class="badge blue white-text" style="border-radius: 12px;">در حال توسعه</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -132,61 +123,4 @@
         </div>
     </div>
 </div>
-
-<!-- Chart.js for Activity Chart -->
-<script src="/static/js/chart.min.js"></script>
-<script>
-    // Activity Chart
-    const ctx = document.getElementById('activity-chart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'],
-            datasets: [{
-                label: 'کامیت‌ها',
-                data: [12, 19, 15, 25, 22, 30, 28],
-                borderColor: '#4285f4',
-                backgroundColor: 'rgba(66, 133, 244, 0.1)',
-                tension: 0.4
-            }, {
-                label: 'Pull Requests',
-                data: [5, 8, 6, 10, 9, 12, 11],
-                borderColor: '#34a853',
-                backgroundColor: 'rgba(52, 168, 83, 0.1)',
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: {
-                            family: 'Vazirmatn'
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn'
-                        }
-                    }
-                },
-                x: {
-                    ticks: {
-                        font: {
-                            family: 'Vazirmatn'
-                        }
-                    }
-                }
-            }
-        }
-    });
-</script>
 {% endblock %}

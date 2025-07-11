@@ -25,7 +25,7 @@
             <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                 داشبورد
             </a>
-            <a href="{% url 'git_integration:settings' %}" class="nav-link {% if 'git' in request.path %}active{% endif %}">
+            <a href="{% url 'git' %}" class="nav-link {% if 'git' in request.path %}active{% endif %}">
                 Git
             </a>
             <a href="#" class="nav-link">
