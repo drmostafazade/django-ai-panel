@@ -13,45 +13,15 @@ from datetime import datetime, timedelta
 
 @login_required
 def ai_chat(request):
-    """صفحه اصلی چت AI - بهبود یافته"""
-    
-    # دریافت API keys فعال کاربر
-    user_keys = APIKey.objects.filter(
-        user=request.user, 
-        is_active=True,
-        is_verified=True  # فقط کلیدهای تست شده
-    ).select_related('provider')
-    
-    # دریافت همه providers موجود
+    """صفحه اصلی چت AI"""
+    user_keys = APIKey.objects.filter(user=request.user, is_active=True)
     providers = AIProvider.objects.filter(is_active=True)
-    
-    # محاسبه آمار ماهانه
-    from datetime import datetime, timedelta
-    start_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    
-    month_stats = TokenUsage.objects.filter(
-        api_key__user=request.user,
-        timestamp__gte=start_of_month
-    ).aggregate(
-        total_tokens=Sum('total_tokens'),
-        total_cost=Sum('cost')
-    )
-    
-    # آمار کلی کاربر
-    total_keys = APIKey.objects.filter(user=request.user).count()
-    active_keys = user_keys.count()
     
     context = {
         'user_keys': user_keys,
         'providers': providers,
         'has_keys': user_keys.exists(),
-        'total_keys': total_keys,
-        'active_keys': active_keys,
-        'total_tokens_month': month_stats['total_tokens'] or 0,
-        'total_cost_month': month_stats['total_cost'] or 0,
-        'page_title': 'چت با هوش مصنوعی'
     }
-    
     return render(request, 'ai_manager/chat.html', context)
 
 @login_required
@@ -531,84 +501,3 @@ def add_prompt(request, key_id):
             messages.error(request, 'خطا در افزودن پرامپت')
     
     return redirect('api_settings')
-
-# 🆕 View جدید برای چت بهبود یافته
-@login_required
-def ai_chat_improved(request):
-    """صفحه اصلی چت AI - بهبود یافته"""
-    
-    # دریافت API keys فعال کاربر
-    user_keys = APIKey.objects.filter(
-        user=request.user, 
-        is_active=True,
-        is_verified=True  # فقط کلیدهای تست شده
-    ).select_related('provider')
-    
-    # دریافت همه providers موجود
-    providers = AIProvider.objects.filter(is_active=True)
-    
-    # محاسبه آمار ماهانه
-    from datetime import datetime, timedelta
-    start_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    
-    month_stats = TokenUsage.objects.filter(
-        api_key__user=request.user,
-        timestamp__gte=start_of_month
-    ).aggregate(
-        total_tokens=Sum('total_tokens'),
-        total_cost=Sum('cost')
-    )
-    
-    # آمار کلی کاربر
-    total_keys = APIKey.objects.filter(user=request.user).count()
-    active_keys = user_keys.count()
-    
-    context = {
-        'user_keys': user_keys,
-        'providers': providers,
-        'has_keys': user_keys.exists(),
-        'total_keys': total_keys,
-        'active_keys': active_keys,
-        'total_tokens_month': month_stats['total_tokens'] or 0,
-        'total_cost_month': month_stats['total_cost'] or 0,
-        'page_title': 'چت با هوش مصنوعی'
-    }
-    
-    return render(request, 'ai_manager/chat.html', context)
-
-@login_required
-def get_active_keys_api(request):
-    """API برای دریافت لیست کلیدهای فعال"""
-    if request.method != 'GET':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
-    try:
-        user_keys = APIKey.objects.filter(
-            user=request.user,
-            is_verified=True
-        ).select_related('provider')
-        
-        keys_data = []
-        for key in user_keys:
-            keys_data.append({
-                'id': key.id,
-                'provider': key.provider.name,
-                'provider_display': key.provider.get_name_display(),
-                'model_name': key.model_name or 'پیش‌فرض',
-                'is_active': key.is_active,
-                'last_used': key.last_used.isoformat() if key.last_used else None,
-                'used_tokens': key.used_tokens
-            })
-        
-        return JsonResponse({
-            'success': True,
-            'keys': keys_data,
-            'total': len(keys_data),
-            'active_count': len([k for k in keys_data if k['is_active']])
-        })
-        
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
