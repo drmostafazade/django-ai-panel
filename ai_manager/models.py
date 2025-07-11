@@ -4,12 +4,7 @@ from django.utils import timezone
 import json
 
 class AIProvider(models.Model):
-    PROVIDER_CHOICES = [
-        ('claude', 'Claude (Anthropic)'),
-        ('openai', 'OpenAI (GPT)'),
-        ('gemini', 'Google Gemini'),
-        ('deepseek', 'DeepSeek'),
-    ]
+    PROVIDER_CHOICES = [        ('claude', 'Claude (Anthropic)'),        ('openai', 'OpenAI (GPT)'),        ('gemini', 'Google Gemini'),        ('deepseek', 'DeepSeek'),        ('groq', 'Groq'),        ('github', 'GitHub Copilot'),        ('cohere', 'Cohere'),        ('mistral', 'Mistral AI'),    ]
     
     name = models.CharField(max_length=50, choices=PROVIDER_CHOICES, unique=True)
     is_active = models.BooleanField(default=True)

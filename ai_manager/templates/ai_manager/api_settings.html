@@ -471,8 +471,8 @@ function displayModels(models) {
 }
 
 function selectModel(modelId, modelInfo) {
-    selectedModel = modelInfo;
-    document.getElementById('model_info').value = JSON.stringify(modelInfo);
+    selectedModel = JSON.parse(decodeURIComponent(modelInfo));
+    document.getElementById("model_info").value = JSON.stringify(selectedModel);
     updateProgress(5);
 }
 
