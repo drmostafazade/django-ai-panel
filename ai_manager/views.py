@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db import models
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
