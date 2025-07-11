@@ -313,3 +313,7 @@ def chat_api(request):
             
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+# اضافه کردن import logging در ابتدای فایل
+import logging
+logger = logging.getLogger(__name__)
