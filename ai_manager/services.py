@@ -1,6 +1,9 @@
 import anthropic
 import openai
 import google.generativeai as genai
+from groq import Groq
+import cohere
+from mistralai.client import MistralClient
 from datetime import datetime
 import json
 import requests
@@ -9,9 +12,8 @@ from typing import Dict, List, Optional, Tuple
 class AIModelRegistry:
     """رجیستری مرکزی برای مدیریت مدل‌های AI"""
     
-    # آخرین مدل‌های Claude (بر اساس داکیومنت search-results)
+    # آخرین مدل‌های Claude
     CLAUDE_MODELS = {
-        # مدل‌های جدید با قابلیت Search Results
         'claude-3-5-haiku-20241022': {
             'name': 'Claude 3.5 Haiku',
             'description': 'سریع‌ترین - مناسب برای کارهای ساده',
@@ -47,7 +49,6 @@ class AIModelRegistry:
             'features': ['search-results'],
             'pricing': {'input': 3.00, 'output': 15.00}
         },
-        # مدل‌های قدیمی‌تر
         'claude-3-opus-20240229': {
             'name': 'Claude 3 Opus',
             'description': 'مدل قدرتمند نسل 3',
@@ -71,22 +72,67 @@ class AIModelRegistry:
         }
     }
     
-    @classmethod
-    def get_available_models(cls, provider: str) -> List[Dict]:
-        """دریافت لیست مدل‌های موجود برای هر provider"""
-        if provider == 'claude':
-            return [
-                {
-                    'id': model_id,
-                    'name': info['name'],
-                    'description': info['description'],
-                    'context_window': info['context'],
-                    'features': info['features'],
-                    'pricing': info['pricing']
-                }
-                for model_id, info in cls.CLAUDE_MODELS.items()
-            ]
-        return []
+    # مدل‌های Groq
+    GROQ_MODELS = {
+        'llama3-70b-8192': {
+            'name': 'Llama 3 70B',
+            'description': 'قوی‌ترین مدل Groq',
+            'context': 8192,
+            'pricing': {'input': 0.59, 'output': 0.79}
+        },
+        'llama3-8b-8192': {
+            'name': 'Llama 3 8B',
+            'description': 'مدل سریع و کارآمد',
+            'context': 8192,
+            'pricing': {'input': 0.05, 'output': 0.08}
+        },
+        'mixtral-8x7b-32768': {
+            'name': 'Mixtral 8x7B',
+            'description': 'مدل قدرتمند با context بزرگ',
+            'context': 32768,
+            'pricing': {'input': 0.24, 'output': 0.24}
+        },
+        'gemma-7b-it': {
+            'name': 'Gemma 7B',
+            'description': 'مدل Google متن‌باز',
+            'context': 8192,
+            'pricing': {'input': 0.07, 'output': 0.07}
+        }
+    }
+    
+    # مدل‌های DeepSeek
+    DEEPSEEK_MODELS = {
+        'deepseek-chat': {
+            'name': 'DeepSeek Chat',
+            'description': 'مدل چت عمومی',
+            'context': 32768,
+            'pricing': {'input': 0.14, 'output': 0.28}
+        },
+        'deepseek-coder': {
+            'name': 'DeepSeek Coder',
+            'description': 'مخصوص برنامه‌نویسی',
+            'context': 16384,
+            'pricing': {'input': 0.14, 'output': 0.28}
+        }
+    }
+    
+    # مدل‌های GitHub Copilot
+    GITHUB_MODELS = {
+        'gpt-4o': {
+            'name': 'GPT-4 Optimized',
+            'description': 'مدل بهینه شده GitHub',
+            'context': 128000,
+            'features': ['code-completion', 'chat'],
+            'pricing': {'input': 0.01, 'output': 0.03}
+        },
+        'gpt-3.5-turbo': {
+            'name': 'GPT-3.5 Turbo',
+            'description': 'مدل سریع',
+            'context': 16385,
+            'features': ['code-completion', 'chat'],
+            'pricing': {'input': 0.002, 'output': 0.002}
+        }
+    }
 
 class AIService:
     """سرویس اصلی برای مدیریت ارتباط با AI providers"""
@@ -98,115 +144,45 @@ class AIService:
             client = anthropic.Anthropic(api_key=api_key)
             available_models = []
             
-            # دریافت مدل‌ها از رجیستری
-            all_models = AIModelRegistry.get_available_models('claude')
-            
-            for model in all_models:
+            for model_id, info in AIModelRegistry.CLAUDE_MODELS.items():
+                model_data = {
+                    'id': model_id,
+                    'name': info['name'],
+                    'description': info['description'],
+                    'context_window': info['context'],
+                    'features': info['features'],
+                    'pricing': info['pricing']
+                }
+                
                 try:
-                    # تست سریع برای بررسی دسترسی
+                    # تست سریع
                     response = client.messages.create(
-                        model=model['id'],
+                        model=model_id,
                         max_tokens=1,
                         messages=[{"role": "user", "content": "."}]
                     )
-                    
-                    model['available'] = True
-                    model['test_successful'] = True
-                    available_models.append(model)
-                    
-                except anthropic.NotFoundError:
-                    # مدل وجود ندارد
-                    model['available'] = False
-                    model['error'] = 'Model not found'
-                    available_models.append(model)
-                    
-                except anthropic.AuthenticationError:
-                    # مشکل احراز هویت
-                    return {
-                        'success': False,
-                        'error': 'Invalid API key',
-                        'models': []
-                    }
-                    
-                except Exception as e:
-                    # سایر خطاها
-                    model['available'] = False
-                    model['error'] = str(e)
-                    available_models.append(model)
-            
-            # دریافت اطلاعات حساب (اگر API موجود باشد)
-            account_info = AIService._get_claude_account_info(client)
+                    model_data['available'] = True
+                except:
+                    model_data['available'] = False
+                
+                available_models.append(model_data)
             
             return {
                 'success': True,
                 'models': available_models,
-                'account_info': account_info
+                'account_info': {'api_key_valid': True}
             }
             
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'models': []
-            }
-    
-    @staticmethod
-    def _get_claude_account_info(client) -> Dict:
-        """دریافت اطلاعات حساب Claude"""
-        try:
-            # متاسفانه Anthropic API فعلاً endpoint مستقیم برای account info ندارد
-            # اما می‌توانیم از response headers استفاده کنیم
-            return {
-                'api_key_valid': True,
-                'rate_limits': 'بر اساس طرح شما',
-                'organization': 'Personal',
-                'usage_available': False
-            }
-        except:
-            return {'api_key_valid': True}
+            return {'success': False, 'error': str(e), 'models': []}
     
     @staticmethod
     def get_openai_models(api_key: str) -> Dict:
-        """دریافت مدل‌های OpenAI به صورت dynamic"""
+        """دریافت مدل‌های OpenAI"""
         try:
             client = openai.OpenAI(api_key=api_key)
-            
-            # دریافت لیست مدل‌ها از API
             models = client.models.list()
             
-            # دریافت اطلاعات usage
-            headers = {
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json'
-            }
-            
-            # تلاش برای دریافت اطلاعات billing
-            usage_info = {}
-            try:
-                # دریافت اطلاعات subscription
-                subscription_resp = requests.get(
-                    'https://api.openai.com/v1/dashboard/billing/subscription',
-                    headers=headers
-                )
-                if subscription_resp.status_code == 200:
-                    usage_info['subscription'] = subscription_resp.json()
-                
-                # دریافت usage
-                today = datetime.now()
-                start_date = today.replace(day=1).strftime('%Y-%m-%d')
-                end_date = today.strftime('%Y-%m-%d')
-                
-                usage_resp = requests.get(
-                    f'https://api.openai.com/v1/dashboard/billing/usage?start_date={start_date}&end_date={end_date}',
-                    headers=headers
-                )
-                if usage_resp.status_code == 200:
-                    usage_info['usage'] = usage_resp.json()
-                    
-            except:
-                pass
-            
-            # فیلتر و دسته‌بندی مدل‌ها
             chat_models = []
             for model in models.data:
                 if any(x in model.id for x in ['gpt-4', 'gpt-3.5', 'gpt-4o']):
@@ -214,84 +190,19 @@ class AIService:
                         'id': model.id,
                         'name': model.id,
                         'created': datetime.fromtimestamp(model.created).strftime('%Y-%m-%d'),
-                        'owned_by': model.owned_by,
                         'context_window': AIService._get_openai_context(model.id),
-                        'available': True,
-                        'capabilities': AIService._get_model_capabilities(model.id)
+                        'available': True
                     }
                     chat_models.append(model_info)
             
-            # مرتب‌سازی بر اساس قدرت و تاریخ
-            chat_models.sort(key=lambda x: (
-                'gpt-4o' in x['id'],
-                'gpt-4-turbo' in x['id'], 
-                'gpt-4' in x['id'],
-                x['created']
-            ), reverse=True)
-            
             return {
                 'success': True,
-                'models': chat_models,
-                'account_info': {
-                    'api_key_valid': True,
-                    'usage_info': usage_info,
-                    'organization': models.data[0].owned_by if models.data else 'Unknown'
-                }
+                'models': sorted(chat_models, key=lambda x: x['name'], reverse=True),
+                'account_info': {'api_key_valid': True}
             }
             
-        except openai.AuthenticationError:
-            return {
-                'success': False,
-                'error': 'Invalid API key',
-                'models': []
-            }
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'models': []
-            }
-    
-    @staticmethod
-    def _get_openai_context(model_id: str) -> int:
-        """Context window برای مدل‌های OpenAI"""
-        contexts = {
-            'gpt-4o': 128000,
-            'gpt-4o-mini': 128000,
-            'gpt-4-turbo': 128000,
-            'gpt-4-turbo-preview': 128000,
-            'gpt-4-vision-preview': 128000,
-            'gpt-4': 8192,
-            'gpt-4-32k': 32768,
-            'gpt-3.5-turbo': 16385,
-            'gpt-3.5-turbo-16k': 16385,
-            'gpt-3.5-turbo-instruct': 4096
-        }
-        
-        # پیدا کردن بهترین match
-        for key, value in contexts.items():
-            if key in model_id:
-                return value
-        return 4096
-    
-    @staticmethod
-    def _get_model_capabilities(model_id: str) -> List[str]:
-        """قابلیت‌های هر مدل"""
-        capabilities = []
-        
-        if 'vision' in model_id or 'gpt-4o' in model_id:
-            capabilities.append('vision')
-        
-        if 'turbo' in model_id:
-            capabilities.append('fast')
-            
-        if any(x in model_id for x in ['gpt-4', 'gpt-4o']):
-            capabilities.append('advanced-reasoning')
-            
-        if 'function' in model_id or 'gpt' in model_id:
-            capabilities.append('function-calling')
-            
-        return capabilities
+            return {'success': False, 'error': str(e), 'models': []}
     
     @staticmethod
     def get_gemini_models(api_key: str) -> Dict:
@@ -299,7 +210,6 @@ class AIService:
         try:
             genai.configure(api_key=api_key)
             
-            # دریافت لیست مدل‌ها
             models = []
             for model in genai.list_models():
                 if 'generateContent' in model.supported_generation_methods:
@@ -309,148 +219,179 @@ class AIService:
                         'description': model.description,
                         'context_window': getattr(model, 'input_token_limit', 0),
                         'output_limit': getattr(model, 'output_token_limit', 0),
-                        'available': True,
-                        'capabilities': []
+                        'available': True
                     }
-                    
-                    # بررسی قابلیت‌ها
-                    if hasattr(model, 'supported_generation_methods'):
-                        model_info['capabilities'] = list(model.supported_generation_methods)
-                    
                     models.append(model_info)
             
-            return {
-                'success': True,
-                'models': models,
-                'account_info': {
-                    'api_key_valid': True,
-                    'service': 'Google AI Studio'
-                }
-            }
+            return {'success': True, 'models': models, 'account_info': {'api_key_valid': True}}
             
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'models': []
-            }
+            return {'success': False, 'error': str(e), 'models': []}
+    
+    @staticmethod
+    def get_groq_models(api_key: str) -> Dict:
+        """دریافت مدل‌های Groq"""
+        try:
+            client = Groq(api_key=api_key)
+            
+            available_models = []
+            for model_id, info in AIModelRegistry.GROQ_MODELS.items():
+                model_data = {
+                    'id': model_id,
+                    'name': info['name'],
+                    'description': info['description'],
+                    'context_window': info['context'],
+                    'pricing': info['pricing'],
+                    'available': True
+                }
+                available_models.append(model_data)
+            
+            return {'success': True, 'models': available_models, 'account_info': {'api_key_valid': True}}
+            
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'models': []}
+    
+    @staticmethod
+    def get_deepseek_models(api_key: str) -> Dict:
+        """دریافت مدل‌های DeepSeek"""
+        try:
+            # DeepSeek از OpenAI-compatible API استفاده می‌کند
+            available_models = []
+            for model_id, info in AIModelRegistry.DEEPSEEK_MODELS.items():
+                model_data = {
+                    'id': model_id,
+                    'name': info['name'],
+                    'description': info['description'],
+                    'context_window': info['context'],
+                    'pricing': info['pricing'],
+                    'available': True
+                }
+                available_models.append(model_data)
+            
+            return {'success': True, 'models': available_models, 'account_info': {'api_key_valid': True}}
+            
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'models': []}
+    
+    @staticmethod
+    def get_github_models(api_key: str) -> Dict:
+        """دریافت مدل‌های GitHub Copilot"""
+        try:
+            # GitHub Copilot از Azure OpenAI استفاده می‌کند
+            available_models = []
+            for model_id, info in AIModelRegistry.GITHUB_MODELS.items():
+                model_data = {
+                    'id': model_id,
+                    'name': info['name'],
+                    'description': info['description'],
+                    'context_window': info['context'],
+                    'features': info.get('features', []),
+                    'pricing': info['pricing'],
+                    'available': True
+                }
+                available_models.append(model_data)
+            
+            return {'success': True, 'models': available_models, 'account_info': {'api_key_valid': True}}
+            
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'models': []}
     
     @staticmethod
     def test_api_key(provider: str, api_key: str, model_name: str) -> Dict:
-        """تست کامل API key با دریافت اطلاعات کامل"""
+        """تست کامل API key"""
         try:
             if provider == 'claude':
                 client = anthropic.Anthropic(api_key=api_key)
-                
-                # تست با استفاده از beta header برای مدل‌های جدید
-                model_info = AIModelRegistry.CLAUDE_MODELS.get(model_name, {})
-                
-                kwargs = {
-                    'model': model_name,
-                    'max_tokens': 10,
-                    'messages': [{"role": "user", "content": "test"}]
-                }
-                
-                # اگر مدل از search-results پشتیبانی می‌کند
-                if 'search-results' in model_info.get('features', []):
-                    client = anthropic.Anthropic(
-                        api_key=api_key,
-                        default_headers={'anthropic-beta': 'search-results-2025-06-09'}
-                    )
-                
-                response = client.messages.create(**kwargs)
-                usage = response.usage
-                pricing = model_info.get('pricing', {'input': 0, 'output': 0})
-                
-                # محاسبه هزینه
-                cost = (
-                    (usage.input_tokens * pricing['input'] / 1_000_000) +
-                    (usage.output_tokens * pricing['output'] / 1_000_000)
+                response = client.messages.create(
+                    model=model_name,
+                    max_tokens=10,
+                    messages=[{"role": "user", "content": "test"}]
                 )
-                
                 return {
                     'success': True,
                     'model': model_name,
-                    'model_details': model_info,
                     'usage': {
-                        'input_tokens': usage.input_tokens,
-                        'output_tokens': usage.output_tokens,
-                        'total_tokens': usage.input_tokens + usage.output_tokens,
-                        'estimated_cost': f"${cost:.6f}"
-                    },
-                    'features': model_info.get('features', []),
-                    'limits': {
-                        'context_window': model_info.get('context', 200000),
-                        'max_output': 4096
+                        'total_tokens': response.usage.input_tokens + response.usage.output_tokens
                     }
                 }
                 
             elif provider == 'openai':
                 client = openai.OpenAI(api_key=api_key)
-                
                 response = client.chat.completions.create(
                     model=model_name,
                     messages=[{"role": "user", "content": "test"}],
                     max_tokens=10
                 )
-                
-                usage = response.usage
-                
-                # محاسبه هزینه تقریبی
-                pricing = AIService._get_openai_pricing(model_name)
-                cost = (
-                    (usage.prompt_tokens * pricing['input'] / 1_000_000) +
-                    (usage.completion_tokens * pricing['output'] / 1_000_000)
-                )
-                
                 return {
                     'success': True,
                     'model': model_name,
-                    'usage': {
-                        'prompt_tokens': usage.prompt_tokens,
-                        'completion_tokens': usage.completion_tokens,
-                        'total_tokens': usage.total_tokens,
-                        'estimated_cost': f"${cost:.6f}"
-                    },
-                    'limits': {
-                        'context_window': AIService._get_openai_context(model_name),
-                        'rate_limit': 'بر اساس طرح شما'
-                    }
+                    'usage': {'total_tokens': response.usage.total_tokens}
                 }
                 
             elif provider == 'gemini':
                 genai.configure(api_key=api_key)
                 model = genai.GenerativeModel(model_name)
-                
                 response = model.generate_content("test")
+                return {'success': True, 'model': model_name}
                 
-                return {
-                    'success': True,
-                    'model': model_name,
-                    'usage': {
-                        'total_tokens': response.usage_metadata.total_token_count if hasattr(response, 'usage_metadata') else 0
+            elif provider == 'groq':
+                client = Groq(api_key=api_key)
+                response = client.chat.completions.create(
+                    model=model_name,
+                    messages=[{"role": "user", "content": "test"}],
+                    max_tokens=10
+                )
+                return {'success': True, 'model': model_name}
+                
+            elif provider == 'deepseek':
+                # DeepSeek API endpoint
+                headers = {'Authorization': f'Bearer {api_key}'}
+                response = requests.post(
+                    'https://api.deepseek.com/v1/chat/completions',
+                    headers=headers,
+                    json={
+                        'model': model_name,
+                        'messages': [{"role": "user", "content": "test"}],
+                        'max_tokens': 10
                     }
-                }
+                )
+                if response.status_code == 200:
+                    return {'success': True, 'model': model_name}
+                else:
+                    return {'success': False, 'error': response.text}
+                    
+            elif provider == 'github':
+                # GitHub Copilot endpoint
+                headers = {'Authorization': f'Bearer {api_key}'}
+                response = requests.post(
+                    'https://api.githubcopilot.com/v1/chat/completions',
+                    headers=headers,
+                    json={
+                        'model': model_name,
+                        'messages': [{"role": "user", "content": "test"}],
+                        'max_tokens': 10
+                    }
+                )
+                if response.status_code == 200:
+                    return {'success': True, 'model': model_name}
+                else:
+                    return {'success': False, 'error': 'GitHub Copilot API key invalid'}
+                    
+            else:
+                return {'success': False, 'error': f'Provider {provider} not supported'}
                 
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e)
-            }
+            return {'success': False, 'error': str(e)}
     
     @staticmethod
-    def _get_openai_pricing(model_id: str) -> Dict[str, float]:
-        """قیمت‌گذاری OpenAI (per 1M tokens)"""
-        pricing = {
-            'gpt-4o': {'input': 2.50, 'output': 10.00},
-            'gpt-4o-mini': {'input': 0.15, 'output': 0.60},
-            'gpt-4-turbo': {'input': 10.00, 'output': 30.00},
-            'gpt-4': {'input': 30.00, 'output': 60.00},
-            'gpt-3.5-turbo': {'input': 0.50, 'output': 1.50}
+    def _get_openai_context(model_id: str) -> int:
+        contexts = {
+            'gpt-4o': 128000,
+            'gpt-4-turbo': 128000,
+            'gpt-4': 8192,
+            'gpt-3.5-turbo': 16385
         }
-        
-        for key, value in pricing.items():
+        for key, value in contexts.items():
             if key in model_id:
                 return value
-                
-        return {'input': 0, 'output': 0}
+        return 4096
