@@ -1,66 +1,126 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container-fluid">
-    <h4 class="grey-text text-darken-1">تنظیمات API Keys</h4>
-    
-    <div class="row">
-        <div class="col s12 m8">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">اضافه کردن API Key جدید</span>
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <select name="provider" required>
-                                    <option value="" disabled selected>انتخاب سرویس</option>
-                                    <option value="1">Claude (Anthropic)</option>
-                                    <option value="2">OpenAI (GPT)</option>
-                                    <option value="3">Google Gemini</option>
-                                    <option value="4">DeepSeek</option>
-                                </select>
-                                <label>سرویس AI</label>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input id="api_key" name="api_key" type="text" required>
-                                <label for="api_key">API Key</label>
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="btn waves-effect waves-light blue">
-                            <i class="material-icons left">save</i>
-                            ذخیره
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col s12 m4">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">راهنما</span>
-                    <p>برای دریافت API Key:</p>
-                    <ul class="browser-default">
-                        <li><a href="https://console.anthropic.com" target="_blank">Claude Console</a></li>
-                        <li><a href="https://platform.openai.com" target="_blank">OpenAI Platform</a></li>
-                        <li><a href="https://makersuite.google.com" target="_blank">Google AI Studio</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% block title %}تنظیمات API - پنل مدیریت{% endblock %}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var elems = document.querySelectorAll('select');
-    M.FormSelect.init(elems);
-});
-</script>
+{% block content %}
+<h1 class="page-title mb-4">تنظیمات API Keys</h1>
+
+<div class="row">
+   <div class="col-md-8">
+       <div class="card mb-4">
+           <div class="card-header bg-light">
+               <h5 class="mb-0">اضافه کردن API Key</h5>
+           </div>
+           <div class="card-body">
+               <form method="post" action="{% url 'api_settings' %}">
+                   {% csrf_token %}
+                   <div class="mb-3">
+                       <label class="form-label">انتخاب سرویس AI</label>
+                       <select name="provider" class="form-select" required>
+                           <option value="">-- انتخاب کنید --</option>
+                           {% for provider in providers %}
+                           <option value="{{ provider.id }}">{{ provider.get_name_display }}</option>
+                           {% endfor %}
+                       </select>
+                   </div>
+                   
+                   <div class="mb-3">
+                       <label class="form-label">API Key</label>
+                       <input type="text" name="api_key" class="form-control" 
+                              placeholder="sk-..." required>
+                       <small class="text-muted">کلید API خود را از سایت سرویس دهنده دریافت کنید</small>
+                   </div>
+                   
+                   <button type="submit" class="btn btn-primary">
+                       ذخیره API Key
+                   </button>
+               </form>
+           </div>
+       </div>
+       
+       <!-- لیست API Keys موجود -->
+       <div class="card">
+           <div class="card-header bg-light">
+               <h5 class="mb-0">API Keys ذخیره شده</h5>
+           </div>
+           <div class="card-body">
+               {% if user_keys %}
+               <table class="table">
+                   <thead>
+                       <tr>
+                           <th>سرویس</th>
+                           <th>وضعیت</th>
+                           <th>آخرین استفاده</th>
+                           <th>عملیات</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       {% for key in user_keys %}
+                       <tr>
+                           <td>{{ key.provider.get_name_display }}</td>
+                           <td>
+                               {% if key.is_active %}
+                               <span class="badge bg-success">فعال</span>
+                               {% else %}
+                               <span class="badge bg-secondary">غیرفعال</span>
+                               {% endif %}
+                           </td>
+                           <td>{{ key.last_used|default:"هرگز" }}</td>
+                           <td>
+                               <form method="post" action="{% url 'toggle_api_key' %}" style="display: inline;">
+                                   {% csrf_token %}
+                                   <input type="hidden" name="key_id" value="{{ key.id }}">
+                                   <button type="submit" class="btn btn-sm btn-outline-primary">
+                                       {% if key.is_active %}غیرفعال{% else %}فعال{% endif %}
+                                   </button>
+                               </form>
+                           </td>
+                       </tr>
+                       {% endfor %}
+                   </tbody>
+               </table>
+               {% else %}
+               <p class="text-muted text-center py-4">هنوز API Key ای ذخیره نکرده‌اید</p>
+               {% endif %}
+           </div>
+       </div>
+   </div>
+   
+   <div class="col-md-4">
+       <div class="card">
+           <div class="card-header bg-light">
+               <h5 class="mb-0">راهنما</h5>
+           </div>
+           <div class="card-body">
+               <h6>نحوه دریافت API Key:</h6>
+               <ul class="small">
+                   <li class="mb-2">
+                       <strong>Claude:</strong><br>
+                       <a href="https://console.anthropic.com/api" target="_blank">
+                           console.anthropic.com
+                       </a>
+                   </li>
+                   <li class="mb-2">
+                       <strong>OpenAI:</strong><br>
+                       <a href="https://platform.openai.com/api-keys" target="_blank">
+                           platform.openai.com
+                       </a>
+                   </li>
+                   <li class="mb-2">
+                       <strong>Google Gemini:</strong><br>
+                       <a href="https://makersuite.google.com/app/apikey" target="_blank">
+                           makersuite.google.com
+                       </a>
+                   </li>
+               </ul>
+               
+               <div class="alert alert-warning mt-3">
+                   <small>
+                       <strong>توجه:</strong> API Key های خود را محرمانه نگه دارید
+                   </small>
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
 {% endblock %}

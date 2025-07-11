@@ -1,49 +1,150 @@
 {% extends "base.html" %}
 
+{% block title %}چت AI - پنل مدیریت{% endblock %}
+
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="page-title mb-0">چت با هوش مصنوعی</h1>
-    <div class="d-flex gap-2">
-        <select class="form-select" style="width: auto;">
-            <option>Claude (Anthropic)</option>
-            <option>OpenAI GPT-4</option>
-            <option>Google Gemini</option>
-        </select>
-        <a href="{% url 'api_settings' %}" class="btn btn-outline">تنظیمات API</a>
-    </div>
+   <h1 class="page-title mb-0">چت با هوش مصنوعی</h1>
+   <div>
+       {% if has_keys %}
+       <select class="form-select d-inline-block w-auto" id="ai-provider">
+           {% for key in user_keys %}
+           <option value="{{ key.provider.name }}">{{ key.provider.get_name_display }}</option>
+           {% endfor %}
+       </select>
+       {% endif %}
+       <a href="{% url 'api_settings' %}" class="btn btn-outline-primary">تنظیمات API</a>
+   </div>
 </div>
 
-<div class="card chat-container">
-    <div class="chat-messages" id="chatMessages">
-        <div class="text-center text-secondary" style="margin-top: 200px;">
-            <p>برای شروع پیام خود را ارسال کنید</p>
-        </div>
-    </div>
-    <div class="card-footer bg-white">
-        <div class="input-group">
-            <textarea class="form-control" rows="2" placeholder="پیام خود را بنویسید..." id="messageInput"></textarea>
-            <button class="btn btn-primary" onclick="sendMessage()">ارسال</button>
-        </div>
-    </div>
+{% if not has_keys %}
+<div class="alert alert-warning">
+   <h5>تنظیمات مورد نیاز</h5>
+   <p>برای استفاده از چت AI، ابتدا باید حداقل یک API Key تنظیم کنید.</p>
+   <a href="{% url 'api_settings' %}" class="btn btn-primary">تنظیم API Key</a>
+</div>
+{% else %}
+
+<div class="card chat-container" style="height: calc(100vh - 300px);">
+   <div class="chat-messages p-3" id="chatMessages" style="height: calc(100% - 80px); overflow-y: auto;">
+       <div class="text-center text-muted" style="margin-top: 150px;">
+           <p>برای شروع پیام خود را ارسال کنید</p>
+       </div>
+   </div>
+   <div class="card-footer">
+       <div class="input-group">
+           <textarea class="form-control" rows="2" placeholder="پیام خود را بنویسید..." 
+                     id="messageInput" onkeypress="handleKeyPress(event)"></textarea>
+           <button class="btn btn-primary" onclick="sendMessage()">ارسال</button>
+       </div>
+   </div>
 </div>
 
 <script>
-function sendMessage() {
-    const input = document.getElementById('messageInput');
-    const messages = document.getElementById('chatMessages');
-    const message = input.value.trim();
-    
-    if (message) {
-        messages.innerHTML = `
-            <div class="message user">
-                <div class="message-content">${message}</div>
-            </div>
-            <div class="message">
-                <div class="message-content">در حال توسعه...</div>
-            </div>
-        `;
-        input.value = '';
-    }
+function handleKeyPress(e) {
+   if (e.key === 'Enter' && !e.shiftKey) {
+       e.preventDefault();
+       sendMessage();
+   }
+}
+
+async function sendMessage() {
+   const input = document.getElementById('messageInput');
+   const messages = document.getElementById('chatMessages');
+   const message = input.value.trim();
+   const provider = document.getElementById('ai-provider')?.value || 'claude';
+   
+   if (!message) return;
+   
+   // Clear initial message
+   if (messages.querySelector('.text-center')) {
+       messages.innerHTML = '';
+   }
+   
+   // Add user message
+   messages.innerHTML += `
+       <div class="mb-3">
+           <div class="d-inline-block p-2 px-3 bg-primary text-white rounded" style="max-width: 70%;">
+               ${message}
+           </div>
+       </div>
+   `;
+   
+   input.value = '';
+   
+   // Add typing indicator
+   messages.innerHTML += `
+       <div class="mb-3" id="typing">
+           <div class="d-inline-block p-2 px-3 bg-light rounded">
+               <span class="typing-dots">...</span>
+           </div>
+       </div>
+   `;
+   
+   messages.scrollTop = messages.scrollHeight;
+   
+   try {
+       const response = await fetch('/ai-chat/api/chat/', {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+               'X-CSRFToken': '{{ csrf_token }}'
+           },
+           body: JSON.stringify({
+               message: message,
+               provider: provider
+           })
+       });
+       
+       const data = await response.json();
+       
+       // Remove typing indicator
+       document.getElementById('typing')?.remove();
+       
+       // Add AI response
+       if (data.success) {
+           messages.innerHTML += `
+               <div class="mb-3">
+                   <div class="d-inline-block p-2 px-3 bg-light rounded" style="max-width: 70%;">
+                       ${data.content}
+                   </div>
+               </div>
+           `;
+       } else {
+           messages.innerHTML += `
+               <div class="mb-3">
+                   <div class="d-inline-block p-2 px-3 bg-danger text-white rounded">
+                       خطا: ${data.error}
+                   </div>
+               </div>
+           `;
+       }
+       
+   } catch (error) {
+       document.getElementById('typing')?.remove();
+       messages.innerHTML += `
+           <div class="mb-3">
+               <div class="d-inline-block p-2 px-3 bg-danger text-white rounded">
+                   خطا در ارتباط با سرور
+               </div>
+           </div>
+       `;
+   }
+   
+   messages.scrollTop = messages.scrollHeight;
 }
 </script>
+
+<style>
+.typing-dots {
+   animation: typing 1.4s infinite;
+}
+
+@keyframes typing {
+   0%, 60%, 100% { opacity: 0.3; }
+   30% { opacity: 1; }
+}
+</style>
+
+{% endif %}
 {% endblock %}
