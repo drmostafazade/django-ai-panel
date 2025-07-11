@@ -313,3 +313,20 @@ def chat_api(request):
             
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def chat_view(request):
+    """صفحه اصلی چت با AI"""
+    # دریافت API keys فعال کاربر
+    user_keys = APIKey.objects.filter(
+        user=request.user,
+        is_active=True,
+        is_verified=True
+    ).select_related('provider')
+    
+    context = {
+        'user_keys': user_keys,
+        'has_keys': user_keys.exists(),
+    }
+    
+    return render(request, 'ai_manager/chat.html', context)

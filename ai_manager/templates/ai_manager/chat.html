@@ -1,150 +1,68 @@
 {% extends "base.html" %}
 
-{% block title %}چت AI - پنل مدیریت{% endblock %}
+{% block title %}چت با AI{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-   <h1 class="page-title mb-0">چت با هوش مصنوعی</h1>
-   <div>
-       {% if has_keys %}
-       <select class="form-select d-inline-block w-auto" id="ai-provider">
-           {% for key in user_keys %}
-           <option value="{{ key.provider.name }}">{{ key.provider.get_name_display }}</option>
-           {% endfor %}
-       </select>
-       {% endif %}
-       <a href="{% url 'api_settings' %}" class="btn btn-outline-primary">تنظیمات API</a>
-   </div>
+<div class="container">
+    <h1 class="page-title mb-4">چت با هوش مصنوعی</h1>
+    
+    {% if not has_keys %}
+    <div class="alert alert-warning">
+        <h5>توجه!</h5>
+        <p>شما هنوز هیچ API Key فعالی ندارید.</p>
+        <a href="{% url 'api_settings' %}" class="btn btn-primary">
+            <i class="bi bi-key"></i> رفتن به تنظیمات API
+        </a>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">گفتگو</h5>
+                        <select class="form-select" style="width: auto;">
+                            <option>انتخاب مدل AI</option>
+                            {% for key in user_keys %}
+                            <option value="{{ key.id }}">
+                                {{ key.provider.get_name_display }} - {{ key.model_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="chat-messages" style="height: 400px; overflow-y: auto;">
+                        <p class="text-center text-muted">برای شروع گفتگو، پیامی ارسال کنید</p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="پیام خود را بنویسید...">
+                        <button class="btn btn-primary">
+                            <i class="bi bi-send"></i> ارسال
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">API Keys فعال</h6>
+                </div>
+                <div class="card-body">
+                    {% for key in user_keys %}
+                    <div class="mb-2">
+                        <strong>{{ key.provider.get_name_display }}</strong><br>
+                        <small class="text-muted">{{ key.model_name }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-
-{% if not has_keys %}
-<div class="alert alert-warning">
-   <h5>تنظیمات مورد نیاز</h5>
-   <p>برای استفاده از چت AI، ابتدا باید حداقل یک API Key تنظیم کنید.</p>
-   <a href="{% url 'api_settings' %}" class="btn btn-primary">تنظیم API Key</a>
-</div>
-{% else %}
-
-<div class="card chat-container" style="height: calc(100vh - 300px);">
-   <div class="chat-messages p-3" id="chatMessages" style="height: calc(100% - 80px); overflow-y: auto;">
-       <div class="text-center text-muted" style="margin-top: 150px;">
-           <p>برای شروع پیام خود را ارسال کنید</p>
-       </div>
-   </div>
-   <div class="card-footer">
-       <div class="input-group">
-           <textarea class="form-control" rows="2" placeholder="پیام خود را بنویسید..." 
-                     id="messageInput" onkeypress="handleKeyPress(event)"></textarea>
-           <button class="btn btn-primary" onclick="sendMessage()">ارسال</button>
-       </div>
-   </div>
-</div>
-
-<script>
-function handleKeyPress(e) {
-   if (e.key === 'Enter' && !e.shiftKey) {
-       e.preventDefault();
-       sendMessage();
-   }
-}
-
-async function sendMessage() {
-   const input = document.getElementById('messageInput');
-   const messages = document.getElementById('chatMessages');
-   const message = input.value.trim();
-   const provider = document.getElementById('ai-provider')?.value || 'claude';
-   
-   if (!message) return;
-   
-   // Clear initial message
-   if (messages.querySelector('.text-center')) {
-       messages.innerHTML = '';
-   }
-   
-   // Add user message
-   messages.innerHTML += `
-       <div class="mb-3">
-           <div class="d-inline-block p-2 px-3 bg-primary text-white rounded" style="max-width: 70%;">
-               ${message}
-           </div>
-       </div>
-   `;
-   
-   input.value = '';
-   
-   // Add typing indicator
-   messages.innerHTML += `
-       <div class="mb-3" id="typing">
-           <div class="d-inline-block p-2 px-3 bg-light rounded">
-               <span class="typing-dots">...</span>
-           </div>
-       </div>
-   `;
-   
-   messages.scrollTop = messages.scrollHeight;
-   
-   try {
-       const response = await fetch('/ai-chat/api/chat/', {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json',
-               'X-CSRFToken': '{{ csrf_token }}'
-           },
-           body: JSON.stringify({
-               message: message,
-               provider: provider
-           })
-       });
-       
-       const data = await response.json();
-       
-       // Remove typing indicator
-       document.getElementById('typing')?.remove();
-       
-       // Add AI response
-       if (data.success) {
-           messages.innerHTML += `
-               <div class="mb-3">
-                   <div class="d-inline-block p-2 px-3 bg-light rounded" style="max-width: 70%;">
-                       ${data.content}
-                   </div>
-               </div>
-           `;
-       } else {
-           messages.innerHTML += `
-               <div class="mb-3">
-                   <div class="d-inline-block p-2 px-3 bg-danger text-white rounded">
-                       خطا: ${data.error}
-                   </div>
-               </div>
-           `;
-       }
-       
-   } catch (error) {
-       document.getElementById('typing')?.remove();
-       messages.innerHTML += `
-           <div class="mb-3">
-               <div class="d-inline-block p-2 px-3 bg-danger text-white rounded">
-                   خطا در ارتباط با سرور
-               </div>
-           </div>
-       `;
-   }
-   
-   messages.scrollTop = messages.scrollHeight;
-}
-</script>
-
-<style>
-.typing-dots {
-   animation: typing 1.4s infinite;
-}
-
-@keyframes typing {
-   0%, 60%, 100% { opacity: 0.3; }
-   30% { opacity: 1; }
-}
-</style>
-
-{% endif %}
 {% endblock %}
