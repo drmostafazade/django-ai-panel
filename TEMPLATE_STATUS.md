@@ -58,7 +58,6 @@
     background: linear-gradient(45deg, #dc3545, #c82333);
     color: white;
 }
-
 🌐 Access Requirements
 ⚠️ Important: صفحه نیاز به authentication دارد
 

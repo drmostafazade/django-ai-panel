@@ -46,6 +46,8 @@
 ## 📋 URL Configuration
 
 ### ✅ URL های موجود:
+
+admin/
 [name='home']
 login/ [name='login']
 logout/ [name='logout']
@@ -63,6 +65,8 @@ ai-chat/api/chat/ [name='chat_api']
 ai-chat/balance/int:key_id/ [name='get_balance']
 ai-chat/personal/int:key_id/ [name='personal_settings']
 ai-chat/add-prompt/int:key_id/ [name='add_prompt']
+
+
 ### ❌ URL مفقود:
 - `ai-chat/test-buttons/` (404 - import error)
 
