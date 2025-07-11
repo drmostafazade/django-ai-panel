@@ -4,7 +4,50 @@ from django.utils import timezone
 import json
 
 class AIProvider(models.Model):
-    PROVIDER_CHOICES = [        ('claude', 'Claude (Anthropic)'),        ('openai', 'OpenAI (GPT)'),        ('gemini', 'Google Gemini'),        ('deepseek', 'DeepSeek'),        ('groq', 'Groq'),        ('github', 'GitHub Copilot'),        ('cohere', 'Cohere'),        ('mistral', 'Mistral AI'),    ]
+    PROVIDER_CHOICES = [
+        ('claude', 'Claude (Anthropic)'),
+        ('openai', 'OpenAI (GPT)'),
+        ('gemini', 'Google Gemini'),
+        ('deepseek', 'DeepSeek'),
+    ]
+    
+    name = models.CharField(max_length=50, choices=PROVIDER_CHOICES, unique=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.get_name_display()
+
+class APIKey(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='api_keys')
+    provider = models.ForeignKey(AIProvider, on_delete=models.CASCADE)
+    key = models.CharField(max_length=255)
+    model_name = models.CharField(max_length=100, blank=True)
+    model_info = models.JSONField(default=dict, blank=True)  # اطلاعات مدل
+    
+    # Token limits and usage
+    total_tokens = models.IntegerField(default=0, help_text='کل توکن‌های موجود')
+    used_tokens = models.IntegerField(default=0, help_text='توکن‌های مصرف شده')
+    rate_limit = models.CharField(max_length=100, blank=True, help_text='محدودیت نرخ')
+    
+    is_active = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used = models.DateTimeField(null=True, blank=True)
+    last_tested = models.DateTimeField(null=True, blank=True)
+    
+    @property
+    def remaining_tokens(self):
+        if self.total_tokens == 0:
+            return "نامحدود"
+        return self.total_tokens - self.used_tokens
+    
+    def __str__(self):
+        return f"{self.provider.name} - {self.user.username} - {self.model_name or 'No model'}"
+    
+    class Meta:
+        unique_together = ['user', 'provider']
+        ordering = ['-created_at']
 
 class TokenUsage(models.Model):
     api_key = models.ForeignKey(APIKey, on_delete=models.CASCADE, related_name='usage')
@@ -16,63 +59,3 @@ class TokenUsage(models.Model):
     
     class Meta:
         ordering = ['-timestamp']
-
-class PersonalPrompt(models.Model):
-    """پرامپت‌های شخصی‌سازی شده"""
-    api_key = models.ForeignKey(APIKey, on_delete=models.CASCADE, related_name='prompts')
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-    category = models.CharField(max_length=50, choices=[
-        ('general', 'عمومی'),
-        ('odoo', 'Odoo Development'),
-        ('wordpress', 'WordPress'),
-        ('django', 'Django'),
-        ('debug', 'Debug & Fix'),
-    ], default='general')
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['category', '-created_at']
-        verbose_name = 'Personal Prompt'
-        verbose_name_plural = 'Personal Prompts'
-    
-    def __str__(self):
-        return f"{self.title} - {self.api_key.provider.name}"
-
-class APIKey(models.Model):
-    # ... فیلدهای قبلی ...
-    
-    # اضافه کردن فیلدهای جدید
-    token_balance = models.BigIntegerField(default=0, help_text='موجودی توکن')
-    token_limit = models.BigIntegerField(default=0, help_text='سقف توکن')
-    subscription_plan = models.CharField(max_length=100, blank=True, help_text='نوع اشتراک')
-    last_balance_check = models.DateTimeField(null=True, blank=True)
-    
-    # ذخیره prompts شخصی‌سازی شده
-    personal_prompts = models.JSONField(default=dict, blank=True)
-    
-    @property
-    def token_percentage(self):
-        """درصد توکن‌های باقی‌مانده"""
-        if self.token_limit > 0:
-            return int((self.token_balance / self.token_limit) * 100)
-        return 100
-
-class PersonalPrompt(models.Model):
-    """پرامپت‌های شخصی‌سازی شده"""
-    api_key = models.ForeignKey(APIKey, on_delete=models.CASCADE, related_name='prompts')
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-    category = models.CharField(max_length=50, choices=[
-        ('general', 'عمومی'),
-        ('odoo', 'Odoo Development'),
-        ('wordpress', 'WordPress'),
-        ('django', 'Django'),
-        ('debug', 'Debug & Fix'),
-    ])
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        ordering = ['category', '-created_at']

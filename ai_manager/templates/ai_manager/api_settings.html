@@ -5,121 +5,67 @@
 {% block content %}
 <h1 class="page-title mb-4">تنظیمات API Keys</h1>
 
-<!-- نمایش پیام‌ها -->
-{% if messages %}
-<div class="mb-4">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
 <div class="row">
     <div class="col-md-8">
         <!-- فرم اضافه کردن API Key -->
         <div class="card mb-4">
             <div class="card-header bg-light">
-                <h5 class="mb-0">🔑 اضافه کردن API Key جدید</h5>
+                <h5 class="mb-0">اضافه کردن API Key جدید</h5>
             </div>
             <div class="card-body">
                 <form method="post" action="{% url 'api_settings' %}" id="apiKeyForm">
                     {% csrf_token %}
-                    <input type="hidden" name="model_info" id="model_info" value="{}">
                     
-                    <!-- Progress Steps -->
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="badge bg-primary" id="step1">1. انتخاب سرویس</span>
-                            <span class="badge bg-secondary" id="step2">2. وارد کردن API Key</span>
-                            <span class="badge bg-secondary" id="step3">3. دریافت مدل‌ها</span>
-                            <span class="badge bg-secondary" id="step4">4. انتخاب مدل</span>
-                            <span class="badge bg-secondary" id="step5">5. تست و ذخیره</span>
-                        </div>
-                        <div class="progress" style="height: 5px;">
-                            <div class="progress-bar" id="progressBar" style="width: 20%"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 1: Provider Selection -->
+                    <!-- مرحله 1: انتخاب سرویس -->
                     <div class="mb-3">
-                        <label class="form-label">انتخاب سرویس AI</label>
-                        <div class="row g-3">
+                        <label class="form-label">1. انتخاب سرویس AI</label>
+                        <select name="provider" id="provider" class="form-select" required>
+                            <option value="">-- انتخاب کنید --</option>
                             {% for provider in providers %}
-                            <div class="col-md-6">
-                                <div class="form-check card p-3">
-                                    <input class="form-check-input" type="radio" name="provider" 
-                                           value="{{ provider.id }}" data-name="{{ provider.name }}"
-                                           id="provider_{{ provider.id }}" onchange="selectProvider(this)">
-                                    <label class="form-check-label w-100" for="provider_{{ provider.id }}">
-                                        <strong>{{ provider.get_name_display }}</strong>
-                                        <br>
-                                        <small class="text-muted">
-                                            {% if provider.name == 'claude' %}
-                                            آخرین مدل‌ها: Claude 3.5, 3.7, Opus 4, Sonnet 4
-                                            {% elif provider.name == 'openai' %}
-                                            GPT-4o, GPT-4 Turbo, GPT-3.5
-                                            {% elif provider.name == 'gemini' %}
-                                            Gemini Pro, Gemini 1.5
-                                            {% endif %}
-                                        </small>
-                                    </label>
-                                </div>
-                            </div>
+                            <option value="{{ provider.id }}" data-name="{{ provider.name }}">
+                                {{ provider.get_name_display }}
+                            </option>
                             {% endfor %}
-                        </div>
+                        </select>
                     </div>
                     
-                    <!-- Step 2: API Key Input -->
+                    <!-- مرحله 2: وارد کردن API Key -->
                     <div class="mb-3" id="apiKeySection" style="display: none;">
-                        <label class="form-label">API Key</label>
+                        <label class="form-label">2. API Key</label>
                         <div class="input-group">
-                            <span class="input-group-text">🔐</span>
-                            <input type="password" name="api_key" id="api_key" class="form-control" 
+                            <input type="text" name="api_key" id="api_key" class="form-control" 
                                    placeholder="sk-..." required>
-                            <button type="button" class="btn btn-outline-secondary" onclick="toggleKeyVisibility()">
-                                <i class="bi bi-eye" id="keyVisibilityIcon"></i>
-                            </button>
-                            <button type="button" class="btn btn-primary" onclick="fetchModels()">
-                                <i class="bi bi-cloud-download"></i> دریافت مدل‌ها
+                            <button type="button" class="btn btn-outline-secondary" onclick="fetchModels()">
+                                <i class="bi bi-download"></i> دریافت مدل‌ها
                             </button>
                         </div>
-                        <small class="text-muted">API Key شما به صورت امن ذخیره می‌شود</small>
+                        <small class="text-muted">ابتدا API Key را وارد کنید، سپس دکمه دریافت مدل‌ها را بزنید</small>
                     </div>
                     
-                    <!-- Step 3: Loading Models -->
-                    <div class="mb-3" id="loadingSection" style="display: none;">
-                        <div class="text-center py-4">
-                            <div class="spinner-border text-primary mb-3"></div>
-                            <p>در حال دریافت مدل‌های موجود...</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 4: Model Selection -->
+                    <!-- مرحله 3: انتخاب مدل -->
                     <div class="mb-3" id="modelSection" style="display: none;">
-                        <label class="form-label">انتخاب مدل</label>
-                        <div id="modelsList" class="row g-3">
-                            <!-- مدل‌ها به صورت dynamic اینجا نمایش داده می‌شوند -->
-                        </div>
+                        <label class="form-label">3. انتخاب مدل</label>
+                        <select name="model_name" id="model_name" class="form-select" required>
+                            <option value="">در حال بارگذاری...</option>
+                        </select>
+                        <div id="modelInfo" class="small text-muted mt-1"></div>
                     </div>
                     
-                    <!-- Connection Status -->
+                    <!-- وضعیت اتصال -->
                     <div id="connectionStatus" class="alert d-none mb-3">
                         <div class="d-flex align-items-center">
                             <div class="spinner-border spinner-border-sm me-2 d-none" id="testingSpinner"></div>
                             <span id="statusText"></span>
                         </div>
-                        <div id="statusDetails" class="mt-2 small"></div>
+                        <div id="usageInfo" class="mt-2 small"></div>
                     </div>
                     
-                    <!-- Action Buttons -->
-                    <div class="d-flex gap-2" id="actionButtons" style="display: none;">
-                        <button type="button" class="btn btn-secondary" onclick="testConnection()">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary" onclick="testConnection()" 
+                                id="testBtn" style="display: none;">
                             <i class="bi bi-plug"></i> تست اتصال
                         </button>
-                        <button type="submit" class="btn btn-success" id="saveBtn" disabled>
+                        <button type="submit" class="btn btn-primary" id="saveBtn" disabled>
                             <i class="bi bi-save"></i> ذخیره API Key
                         </button>
                     </div>
@@ -130,18 +76,18 @@
         <!-- لیست API Keys -->
         <div class="card">
             <div class="card-header bg-light">
-                <h5 class="mb-0">📋 API Keys ذخیره شده</h5>
+                <h5 class="mb-0">API Keys ذخیره شده</h5>
             </div>
             <div class="card-body">
                 {% if user_keys %}
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>سرویس</th>
                                 <th>مدل</th>
                                 <th>وضعیت</th>
-                                <th>توکن‌های مصرفی</th>
+                                <th>مصرف توکن</th>
                                 <th>آخرین استفاده</th>
                                 <th>عملیات</th>
                             </tr>
@@ -149,23 +95,14 @@
                         <tbody>
                             {% for key in user_keys %}
                             <tr>
-                                <td>
-                                    <i class="bi bi-robot"></i>
-                                    {{ key.provider.get_name_display }}
-                                </td>
+                                <td>{{ key.provider.get_name_display }}</td>
                                 <td>
                                     <code class="small">{{ key.model_name|default:"-" }}</code>
-                                    {% if key.model_info.features %}
-                                    <br>
-                                    {% for feature in key.model_info.features %}
-                                    <span class="badge bg-info">{{ feature }}</span>
-                                    {% endfor %}
-                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if key.is_active %}
                                         {% if key.is_verified %}
-                                        <span class="badge bg-success">✓ فعال و تست شده</span>
+                                        <span class="badge bg-success">✓ فعال</span>
                                         {% else %}
                                         <span class="badge bg-warning">⚠ تست نشده</span>
                                         {% endif %}
@@ -175,12 +112,10 @@
                                 </td>
                                 <td>
                                     <small>
+                                        {% if key.total_tokens > 0 %}
+                                        {{ key.used_tokens|floatformat:0 }} / {{ key.total_tokens|floatformat:0 }}
+                                        {% else %}
                                         {{ key.used_tokens|floatformat:0 }} توکن
-                                        {% if key.model_info.pricing %}
-                                        <br>
-                                        <span class="text-muted">
-                                            ~${{ key.used_tokens|floatformat:0 }}
-                                        </span>
                                         {% endif %}
                                     </small>
                                 </td>
@@ -189,29 +124,23 @@
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <button onclick="showKeyDetails({{ key.id }})" 
-                                                class="btn btn-outline-info" title="جزئیات">
-                                            <i class="bi bi-info-circle"></i>
-                                        </button>
-                                        <button onclick="retestKey({{ key.id }})" 
-                                                class="btn btn-outline-primary" title="تست مجدد">
-                                            <i class="bi bi-arrow-clockwise"></i>
+                                        <button onclick="retestKey({{ key.id }})" class="btn btn-outline-info">
+                                            تست
                                         </button>
                                         <form method="post" action="{% url 'toggle_api_key' %}" style="display: inline;">
                                             {% csrf_token %}
                                             <input type="hidden" name="key_id" value="{{ key.id }}">
-                                            <button type="submit" class="btn btn-outline-warning" 
-                                                    title="{% if key.is_active %}غیرفعال{% else %}فعال{% endif %}">
-                                                <i class="bi bi-toggle-{% if key.is_active %}on{% else %}off{% endif %}"></i>
+                                            <button type="submit" class="btn btn-outline-primary">
+                                                {% if key.is_active %}غیرفعال{% else %}فعال{% endif %}
                                             </button>
                                         </form>
                                         <form method="post" action="{% url 'delete_api_key' %}" 
                                               style="display: inline;" 
-                                              onsubmit="return confirm('آیا از حذف این API Key مطمئن هستید؟');">
+                                              onsubmit="return confirm('آیا مطمئن هستید؟');">
                                             {% csrf_token %}
                                             <input type="hidden" name="key_id" value="{{ key.id }}">
-                                            <button type="submit" class="btn btn-outline-danger" title="حذف">
-                                                <i class="bi bi-trash"></i>
+                                            <button type="submit" class="btn btn-outline-danger">
+                                                حذف
                                             </button>
                                         </form>
                                     </div>
@@ -222,174 +151,98 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-key" style="font-size: 3rem; color: #ddd;"></i>
-                    <p class="text-muted mt-3">هنوز API Key ای ذخیره نکرده‌اید</p>
-                    <p class="text-muted">برای شروع، از فرم بالا استفاده کنید</p>
-                </div>
+                <p class="text-muted text-center py-4">هنوز API Key ای ذخیره نکرده‌اید</p>
                 {% endif %}
             </div>
         </div>
     </div>
     
     <div class="col-md-4">
-        <!-- آمار مصرف -->
+        <!-- مصرف کلی -->
         <div class="card mb-3">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-info text-white">
                 <h6 class="mb-0">📊 آمار مصرف این ماه</h6>
             </div>
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-6">
-                        <h4 class="text-primary">{{ total_tokens_month|default:"0"|floatformat:0 }}</h4>
+                        <h4>{{ total_tokens_month|default:"0"|floatformat:0 }}</h4>
                         <small class="text-muted">توکن مصرفی</small>
                     </div>
                     <div class="col-6">
-                        <h4 class="text-success">${{ total_cost_month|default:"0"|floatformat:2 }}</h4>
+                        <h4>${{ total_cost_month|default:"0"|floatformat:2 }}</h4>
                         <small class="text-muted">هزینه تقریبی</small>
                     </div>
                 </div>
-                
-                <hr>
-                
-                <h6 class="mb-2">توزیع مصرف:</h6>
-                <div id="usageChart" style="height: 150px;">
-                    <!-- نمودار مصرف -->
-                </div>
             </div>
         </div>
         
-        <!-- راهنمای سریع -->
-        <div class="card mb-3">
-            <div class="card-header bg-info text-white">
-                <h6 class="mb-0">🚀 راهنمای سریع</h6>
+        <!-- راهنما -->
+        <div class="card">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">📖 راهنما</h6>
             </div>
             <div class="card-body small">
-                <h6>دریافت API Key:</h6>
-                <ul class="ps-3">
-                    <li>
-                        <strong>Claude:</strong>
-                        <a href="https://console.anthropic.com/api" target="_blank">
-                            console.anthropic.com <i class="bi bi-box-arrow-up-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <strong>OpenAI:</strong>
-                        <a href="https://platform.openai.com/api-keys" target="_blank">
-                            platform.openai.com <i class="bi bi-box-arrow-up-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <strong>Google:</strong>
-                        <a href="https://makersuite.google.com/app/apikey" target="_blank">
-                            makersuite.google.com <i class="bi bi-box-arrow-up-right"></i>
-                        </a>
-                    </li>
-                </ul>
+                <h6>مراحل تنظیم:</h6>
+                <ol class="ps-3">
+                    <li>سرویس AI را انتخاب کنید</li>
+                    <li>API Key را وارد کنید</li>
+                    <li>دکمه "دریافت مدل‌ها" را بزنید</li>
+                    <li>مدل مورد نظر را انتخاب کنید</li>
+                    <li>تست اتصال را انجام دهید</li>
+                    <li>ذخیره کنید</li>
+                </ol>
                 
-                <div class="alert alert-warning py-2 mt-3">
-                    <strong>⚠️ نکات امنیتی:</strong>
+                <div class="alert alert-warning mt-3 py-2">
+                    <strong>⚠️ امنیت:</strong>
                     <ul class="mb-0 ps-3">
                         <li>API Key را محرمانه نگه دارید</li>
-                        <li>برای هر پروژه Key جداگانه بسازید</li>
-                        <li>محدودیت‌های usage را تنظیم کنید</li>
+                        <li>از اشتراک گذاری آن خودداری کنید</li>
+                        <li>در صورت لو رفتن، فوراً غیرفعال کنید</li>
                     </ul>
                 </div>
-            </div>
-        </div>
-        
-        <!-- ویژگی‌های جدید -->
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h6 class="mb-0">✨ ویژگی‌های جدید</h6>
-            </div>
-            <div class="card-body small">
-                <ul class="ps-3 mb-0">
-                    <li>پشتیبانی از آخرین مدل‌های Claude 3.5, 3.7, Opus 4</li>
-                    <li>دریافت خودکار لیست مدل‌ها</li>
-                    <li>نمایش توکن‌های مصرفی</li>
-                    <li>محاسبه هزینه تقریبی</li>
-                    <li>تست اتصال پیشرفته</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal for Key Details -->
-<div class="modal fade" id="keyDetailsModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">جزئیات API Key</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="keyDetailsContent">
-                <!-- محتوا به صورت dynamic -->
             </div>
         </div>
     </div>
 </div>
 
 <script>
-let selectedModel = null;
-let currentStep = 1;
-
-function updateProgress(step) {
-    currentStep = step;
-    const progress = step * 20;
-    document.getElementById('progressBar').style.width = progress + '%';
+// نمایش بخش‌ها بر اساس انتخاب
+document.getElementById('provider').addEventListener('change', function() {
+    const apiKeySection = document.getElementById('apiKeySection');
+    const modelSection = document.getElementById('modelSection');
+    const testBtn = document.getElementById('testBtn');
     
-    // Update step badges
-    for (let i = 1; i <= 5; i++) {
-        const badge = document.getElementById(`step${i}`);
-        if (i <= step) {
-            badge.classList.remove('bg-secondary');
-            badge.classList.add('bg-primary');
-        } else {
-            badge.classList.remove('bg-primary');
-            badge.classList.add('bg-secondary');
-        }
-    }
-}
-
-function selectProvider(radio) {
-    if (radio.checked) {
-        document.getElementById('apiKeySection').style.display = 'block';
-        updateProgress(2);
-    }
-}
-
-function toggleKeyVisibility() {
-    const input = document.getElementById('api_key');
-    const icon = document.getElementById('keyVisibilityIcon');
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('bi-eye');
-        icon.classList.add('bi-eye-slash');
+    if (this.value) {
+        apiKeySection.style.display = 'block';
+        modelSection.style.display = 'none';
+        testBtn.style.display = 'none';
+        document.getElementById('saveBtn').disabled = true;
     } else {
-        input.type = 'password';
-        icon.classList.remove('bi-eye-slash');
-        icon.classList.add('bi-eye');
+        apiKeySection.style.display = 'none';
+        modelSection.style.display = 'none';
+        testBtn.style.display = 'none';
     }
-}
+});
 
 async function fetchModels() {
-    const provider = document.querySelector('input[name="provider"]:checked');
+    const provider = document.getElementById('provider');
     const apiKey = document.getElementById('api_key').value;
+    const selectedOption = provider.options[provider.selectedIndex];
+    const providerName = selectedOption.getAttribute('data-name');
     
-    if (!provider || !apiKey) {
-        alert('لطفاً سرویس را انتخاب کرده و API Key را وارد کنید');
+    if (!apiKey) {
+        alert('لطفاً ابتدا API Key را وارد کنید');
         return;
     }
     
-    const providerName = provider.getAttribute('data-name');
+    const modelSelect = document.getElementById('model_name');
+    const modelSection = document.getElementById('modelSection');
+    const modelInfo = document.getElementById('modelInfo');
+    const testBtn = document.getElementById('testBtn');
     
-    // Show loading
-    document.getElementById('loadingSection').style.display = 'block';
-    document.getElementById('modelSection').style.display = 'none';
-    updateProgress(3);
+    modelSelect.innerHTML = '<option value="">در حال دریافت مدل‌ها...</option>';
+    modelSection.style.display = 'block';
     
     try {
         const response = await fetch('{% url "get_available_models" %}', {
@@ -406,117 +259,47 @@ async function fetchModels() {
         
         const data = await response.json();
         
-        document.getElementById('loadingSection').style.display = 'none';
-        
         if (data.success) {
-            displayModels(data.models);
-            updateProgress(4);
+            modelSelect.innerHTML = '<option value="">-- انتخاب مدل --</option>';
             
-            // نمایش اطلاعات حساب
-            if (data.account_info) {
-                showAccountInfo(data.account_info);
-            }
+            data.models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.id;
+                option.textContent = model.name || model.id;
+                
+                // اضافه کردن اطلاعات اضافی
+                if (model.context) {
+                    option.textContent += ` (${model.context} tokens)`;
+                }
+                
+                modelSelect.appendChild(option);
+            });
+            
+            modelInfo.textContent = `${data.models.length} مدل یافت شد`;
+            testBtn.style.display = 'inline-block';
         } else {
-            alert(`خطا: ${data.error}`);
+            modelSelect.innerHTML = '<option value="">خطا در دریافت مدل‌ها</option>';
+            modelInfo.textContent = data.error;
         }
     } catch (error) {
-        document.getElementById('loadingSection').style.display = 'none';
-        alert('خطا در ارتباط با سرور');
+        modelSelect.innerHTML = '<option value="">خطا در ارتباط</option>';
+        modelInfo.textContent = error.toString();
     }
-}
-
-function displayModels(models) {
-    const modelsList = document.getElementById('modelsList');
-    const modelSection = document.getElementById('modelSection');
-    
-    modelsList.innerHTML = '';
-    
-    models.forEach((model, index) => {
-        const available = model.available !== false;
-        const card = document.createElement('div');
-        card.className = 'col-md-6';
-        card.innerHTML = `
-            <div class="card ${available ? '' : 'opacity-50'}" style="cursor: ${available ? 'pointer' : 'not-allowed'};">
-                <div class="card-body">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="model_name" 
-                               value="${model.id}" id="model_${index}"
-                               ${available ? '' : 'disabled'}
-                               onchange="selectModel('${model.id}', ${JSON.stringify(model).replace(/"/g, '&quot;')})">
-                        <label class="form-check-label w-100" for="model_${index}">
-                            <strong>${model.name || model.id}</strong>
-                            ${model.description ? `<br><small class="text-muted">${model.description}</small>` : ''}
-                            <div class="mt-2">
-                                ${model.context_window ? `<span class="badge bg-secondary">Context: ${model.context_window.toLocaleString()}</span>` : ''}
-                                ${model.features ? model.features.map(f => `<span class="badge bg-info ms-1">${f}</span>`).join('') : ''}
-                                ${!available ? '<span class="badge bg-danger ms-1">غیرقابل دسترس</span>' : ''}
-                            </div>
-                            ${model.pricing ? `
-                            <div class="mt-1">
-                                <small class="text-muted">
-                                    Input: $${model.pricing.input}/1M | Output: $${model.pricing.output}/1M
-                                </small>
-                            </div>
-                            ` : ''}
-                        </label>
-                    </div>
-                </div>
-            </div>
-        `;
-        modelsList.appendChild(card);
-    });
-    
-    modelSection.style.display = 'block';
-    document.getElementById('actionButtons').style.display = 'flex';
-}
-
-function selectModel(modelId, modelInfo) {
-    selectedModel = modelInfo;
-    document.getElementById('model_info').value = JSON.stringify(modelInfo);
-    updateProgress(5);
-}
-
-function showAccountInfo(accountInfo) {
-    let info = '<div class="alert alert-info mb-3"><strong>اطلاعات حساب:</strong><br>';
-    
-    if (accountInfo.organization) {
-        info += `سازمان: ${accountInfo.organization}<br>`;
-    }
-    
-    if (accountInfo.usage_info) {
-        if (accountInfo.usage_info.subscription) {
-            const sub = accountInfo.usage_info.subscription;
-            info += `طرح: ${sub.plan?.title || 'نامشخص'}<br>`;
-            info += `محدودیت: $${sub.hard_limit_usd || 0}<br>`;
-        }
-        
-        if (accountInfo.usage_info.usage) {
-            const usage = accountInfo.usage_info.usage;
-            info += `مصرف این ماه: $${usage.total_usage?.toFixed(2) || 0}<br>`;
-        }
-    }
-    
-    info += '</div>';
-    
-    // نمایش در بخش وضعیت
-    const statusDiv = document.getElementById('connectionStatus');
-    statusDiv.innerHTML = info;
-    statusDiv.classList.remove('d-none');
 }
 
 async function testConnection() {
-    const provider = document.querySelector('input[name="provider"]:checked')?.value;
+    const provider = document.getElementById('provider').value;
     const apiKey = document.getElementById('api_key').value;
-    const modelName = document.querySelector('input[name="model_name"]:checked')?.value;
+    const modelName = document.getElementById('model_name').value;
     
     if (!provider || !apiKey || !modelName) {
-        alert('لطفاً همه مراحل را تکمیل کنید');
+        alert('لطفاً همه فیلدها را پر کنید');
         return;
     }
     
     const statusDiv = document.getElementById('connectionStatus');
     const statusText = document.getElementById('statusText');
-    const statusDetails = document.getElementById('statusDetails');
+    const usageInfo = document.getElementById('usageInfo');
     const spinner = document.getElementById('testingSpinner');
     const saveBtn = document.getElementById('saveBtn');
     
@@ -525,7 +308,7 @@ async function testConnection() {
     statusDiv.classList.remove('d-none');
     spinner.classList.remove('d-none');
     statusText.textContent = 'در حال تست اتصال...';
-    statusDetails.innerHTML = '';
+    usageInfo.innerHTML = '';
     
     try {
         const response = await fetch('{% url "test_api_connection" %}', {
@@ -548,25 +331,15 @@ async function testConnection() {
             statusDiv.className = 'alert alert-success';
             statusText.innerHTML = '✓ اتصال موفق!';
             
-            let details = '<strong>جزئیات:</strong><br>';
-            details += `مدل: ${data.model}<br>`;
-            
             if (data.usage) {
-                details += `توکن‌های تست: ${data.usage.total_tokens}<br>`;
-                if (data.usage.estimated_cost) {
-                    details += `هزینه تست: ${data.usage.estimated_cost}<br>`;
-                }
+                usageInfo.innerHTML = `
+                    <strong>اطلاعات حساب:</strong><br>
+                    مدل: ${data.model}<br>
+                    توکن‌های موجود: ${data.available_tokens}<br>
+                    محدودیت: ${data.usage.rate_limit || 'نامشخص'}
+                `;
             }
             
-            if (data.limits) {
-                details += `Context Window: ${data.limits.context_window?.toLocaleString() || 'نامشخص'}<br>`;
-            }
-            
-            if (data.features && data.features.length > 0) {
-                details += `ویژگی‌ها: ${data.features.join(', ')}<br>`;
-            }
-            
-            statusDetails.innerHTML = details;
             saveBtn.disabled = false;
         } else {
             statusDiv.className = 'alert alert-danger';
@@ -605,21 +378,5 @@ async function retestKey(keyId) {
         alert('خطا در ارتباط با سرور');
     }
 }
-
-function showKeyDetails(keyId) {
-    // اینجا می‌توانید جزئیات بیشتر را نمایش دهید
-    const modal = new bootstrap.Modal(document.getElementById('keyDetailsModal'));
-    document.getElementById('keyDetailsContent').innerHTML = `
-        <p>در حال بارگذاری...</p>
-    `;
-    modal.show();
-    
-    // TODO: دریافت جزئیات از سرور
-}
-
-// نمودار مصرف (اختیاری)
-document.addEventListener('DOMContentLoaded', function() {
-    // می‌توانید با Chart.js یا کتابخانه دیگری نمودار بکشید
-});
 </script>
 {% endblock %}

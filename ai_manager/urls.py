@@ -2,15 +2,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('test/', views.api_settings_test, name='api_settings_test'),
-    path('', views.chat_view, name='chat'),
+    path('', views.ai_chat, name='ai_chat'),
     path('settings/', views.api_settings, name='api_settings'),
-    path('get-available-models/', views.get_available_models, name='get_available_models'),
+    path('toggle-key/', views.toggle_api_key, name='toggle_api_key'),
+    path('delete-key/', views.delete_api_key, name='delete_api_key'),
+    path('get-models/', views.get_available_models, name='get_available_models'),
     path('test-connection/', views.test_api_connection, name='test_api_connection'),
-    path('toggle-api-key/', views.toggle_api_key, name='toggle_api_key'),
-    path('delete-api-key/', views.delete_api_key, name='delete_api_key'),
-    path('retest-api-key/', views.retest_api_key, name='retest_api_key'),
+    path('retest-key/', views.retest_api_key, name='retest_api_key'),
+    path('api/chat/', views.chat_api, name='chat_api'),
 ]
-    path('update-balance/<int:key_id>/', views.update_balance, name='update_balance'),
-    path('personal-settings/<int:key_id>/', views.personal_settings, name='personal_settings'),
-    path('test-key/<int:key_id>/', views.test_key, name='test_key'),
