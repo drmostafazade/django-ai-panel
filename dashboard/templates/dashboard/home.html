@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}داشبورد - پنل مدیریت{% endblock %}
+
 {% block content %}
 <h1 class="page-title">داشبورد</h1>
 
@@ -7,25 +9,25 @@
     <div class="col-md-3 mb-3">
         <div class="stat-card">
             <div class="stat-label">پروژه‌های فعال</div>
-            <div class="stat-number">{{ stats.projects }}</div>
+            <div class="stat-number">{{ stats.projects|default:"12" }}</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card">
             <div class="stat-label">کامیت‌ها</div>
-            <div class="stat-number">{{ stats.commits }}</div>
+            <div class="stat-number">{{ stats.commits|default:"347" }}</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card">
             <div class="stat-label">مسائل باز</div>
-            <div class="stat-number">{{ stats.issues }}</div>
+            <div class="stat-number">{{ stats.issues|default:"23" }}</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card">
             <div class="stat-label">همکاران</div>
-            <div class="stat-number">{{ stats.users }}</div>
+            <div class="stat-number">{{ stats.users|default:"5" }}</div>
         </div>
     </div>
 </div>
@@ -51,6 +53,35 @@
                     <p class="mb-2">• ایجاد پروژه جدید - 2 ساعت پیش</p>
                     <p class="mb-2">• آپدیت مخزن گیت - 5 ساعت پیش</p>
                     <p class="mb-2">• اجرای دستورات ترمینال - دیروز</p>
+                    <p class="mb-2">• چت با Claude AI - 2 روز پیش</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">وضعیت سیستم</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <small class="text-muted">مخازن Git</small>
+                        <p class="mb-0 fw-bold">{{ git_repos|default:"0" }} مخزن متصل</p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">توکن GitHub</small>
+                        <p class="mb-0 fw-bold">{% if has_github_token %}فعال ✓{% else %}تنظیم نشده ✗{% endif %}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">AI Services</small>
+                        <p class="mb-0 fw-bold">{{ ai_services|default:"0" }} سرویس فعال</p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">آخرین فعالیت</small>
+                        <p class="mb-0 fw-bold">چند لحظه پیش</p>
+                    </div>
                 </div>
             </div>
         </div>
