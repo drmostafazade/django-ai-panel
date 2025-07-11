@@ -92,3 +92,11 @@ def test_api_connection(request):
 
 def retest_api_key(request):
     return JsonResponse({'success': True})
+
+# تابع تست موقت
+from django.http import HttpResponse
+
+def api_settings_test(request):
+    return HttpResponse("<h1 style='color:green;'>✅ Views کار می‌کند! زمان: {}</h1>".format(
+        timezone.now().strftime("%Y-%m-%d %H:%M:%S")
+    ))
