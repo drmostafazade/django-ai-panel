@@ -11,3 +11,6 @@ urlpatterns = [
     path('delete-api-key/', views.delete_api_key, name='delete_api_key'),
     path('retest-api-key/', views.retest_api_key, name='retest_api_key'),
 ]
+    path('update-balance/<int:key_id>/', views.update_balance, name='update_balance'),
+    path('personal-settings/<int:key_id>/', views.personal_settings, name='personal_settings'),
+    path('test-key/<int:key_id>/', views.test_key, name='test_key'),

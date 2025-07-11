@@ -100,3 +100,96 @@ def api_settings_test(request):
     return HttpResponse("<h1 style='color:green;'>✅ Views کار می‌کند! زمان: {}</h1>".format(
         timezone.now().strftime("%Y-%m-%d %H:%M:%S")
     ))
+
+@login_required
+def update_balance(request, key_id):
+    """بروزرسانی موجودی توکن"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        # دریافت موجودی از API
+        balance_info = AIService.get_token_balance(
+            api_key.provider.name,
+            api_key.key
+        )
+        
+        if balance_info['success']:
+            # ذخیره اطلاعات
+            if isinstance(balance_info.get('balance'), (int, float)):
+                api_key.token_balance = balance_info['balance']
+            
+            if balance_info.get('plan'):
+                api_key.subscription_plan = balance_info['plan']
+                
+            api_key.last_balance_check = timezone.now()
+            api_key.save()
+            
+            return JsonResponse({
+                'success': True,
+                'balance_display': AIService.format_token_display(balance_info),
+                'percentage': api_key.token_percentage,
+                'plan': balance_info.get('plan', '')
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': balance_info.get('error', 'Unknown error')
+            })
+            
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key not found'})
+
+@login_required  
+def personal_settings(request, key_id):
+    """تنظیمات personal برای API key"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        if request.method == 'POST':
+            # ذخیره تنظیمات
+            settings = request.POST.dict()
+            api_key.personal_prompts = settings
+            api_key.save()
+            
+            return JsonResponse({'success': True})
+        
+        # نمایش فرم
+        return render(request, 'ai_manager/partials/personal_settings.html', {
+            'api_key': api_key
+        })
+        
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key not found'})
+
+@login_required
+def test_key(request, key_id):
+    """تست سریع API key"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        result = AIService.test_api_key(
+            api_key.provider.name,
+            api_key.key,
+            api_key.model_name
+        )
+        
+        if result['success']:
+            api_key.is_verified = True
+            api_key.last_tested = timezone.now()
+            api_key.save()
+            
+            # بروزرسانی موجودی
+            balance_info = AIService.get_token_balance(
+                api_key.provider.name,
+                api_key.key
+            )
+            
+            if balance_info['success']:
+                if isinstance(balance_info.get('balance'), (int, float)):
+                    api_key.token_balance = balance_info['balance']
+                    api_key.save()
+        
+        return JsonResponse(result)
+        
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key not found'})
