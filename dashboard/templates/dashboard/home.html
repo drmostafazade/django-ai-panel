@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div style="margin-bottom: 24px;">
+        <h4 style="font-weight: 400; margin: 0;">داشبورد</h4>
+        <p style="color: var(--on-surface-variant); margin: 4px 0 0 0;">خلاصه‌ای از فعالیت‌های شما</p>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row">
+        <div class="col s12 m6 l3">
+            <div class="card">
+                <div class="card-content card-stats">
+                    <i class="material-icons" style="font-size: 48px; color: var(--google-blue);">folder</i>
+                    <p class="card-number" style="color: var(--google-blue);">{{ stats.projects }}</p>
+                    <p class="card-label">پروژه فعال</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col s12 m6 l3">
+            <div class="card">
+                <div class="card-content card-stats">
+                    <i class="material-icons" style="font-size: 48px; color: var(--google-green);">code</i>
+                    <p class="card-number" style="color: var(--google-green);">{{ stats.commits }}</p>
+                    <p class="card-label">کامیت این ماه</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col s12 m6 l3">
+            <div class="card">
+                <div class="card-content card-stats">
+                    <i class="material-icons" style="font-size: 48px; color: var(--google-yellow);">bug_report</i>
+                    <p class="card-number" style="color: var(--google-yellow);">{{ stats.issues }}</p>
+                    <p class="card-label">مسئله باز</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col s12 m6 l3">
+            <div class="card">
+                <div class="card-content card-stats">
+                    <i class="material-icons" style="font-size: 48px; color: var(--google-red);">group</i>
+                    <p class="card-number" style="color: var(--google-red);">{{ stats.users }}</p>
+                    <p class="card-label">همکار</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Activity Chart & Quick Actions -->
+    <div class="row">
+        <div class="col s12 l8">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">فعالیت‌های اخیر</span>
+                    <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: var(--background); border-radius: 4px; margin-top: 16px;">
+                        <canvas id="activity-chart" style="max-height: 280px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col s12 l4">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">دسترسی سریع</span>
+                    <div style="margin-top: 24px;">
+                        <a href="/git/" class="btn-large waves-effect btn-google-blue" style="width: 100%; margin-bottom: 12px;">
+                            <i class="material-icons right">code</i>
+                            ایجاد Repository
+                        </a>
+                        <a href="/terminal/" class="btn-large waves-effect btn-google-green" style="width: 100%; margin-bottom: 12px;">
+                            <i class="material-icons right">computer</i>
+                            باز کردن Terminal
+                        </a>
+                        <a href="/ai/" class="btn-large waves-effect btn-google-red" style="width: 100%; margin-bottom: 12px;">
+                            <i class="material-icons right">psychology</i>
+                            چت با AI
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Items -->
+    <div class="row">
+        <div class="col s12">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">آخرین فعالیت‌ها</span>
+                    <table class="striped">
+                        <thead>
+                            <tr>
+                                <th>نوع</th>
+                                <th>عنوان</th>
+                                <th>پروژه</th>
+                                <th>زمان</th>
+                                <th>وضعیت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="material-icons tiny" style="color: var(--google-green);">code</i> Commit</td>
+                                <td>بروزرسانی dashboard UI</td>
+                                <td>Django Panel</td>
+                                <td>5 دقیقه پیش</td>
+                                <td><span class="badge green white-text" style="border-radius: 12px;">موفق</span></td>
+                            </tr>
+                            <tr>
+                                <td><i class="material-icons tiny" style="color: var(--google-blue);">merge_type</i> PR</td>
+                                <td>اضافه کردن قابلیت جدید</td>
+                                <td>API Project</td>
+                                <td>2 ساعت پیش</td>
+                                <td><span class="badge orange white-text" style="border-radius: 12px;">در انتظار</span></td>
+                            </tr>
+                            <tr>
+                                <td><i class="material-icons tiny" style="color: var(--google-yellow);">bug_report</i> Issue</td>
+                                <td>رفع باگ در سیستم ورود</td>
+                                <td>Main Website</td>
+                                <td>1 روز پیش</td>
+                                <td><span class="badge blue white-text" style="border-radius: 12px;">در حال بررسی</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js for Activity Chart -->
+<script src="/static/js/chart.min.js"></script>
+<script>
+    // Activity Chart
+    const ctx = document.getElementById('activity-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'],
+            datasets: [{
+                label: 'کامیت‌ها',
+                data: [12, 19, 15, 25, 22, 30, 28],
+                borderColor: '#4285f4',
+                backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Pull Requests',
+                data: [5, 8, 6, 10, 9, 12, 11],
+                borderColor: '#34a853',
+                backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: 'Vazirmatn'
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            family: 'Vazirmatn'
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            family: 'Vazirmatn'
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

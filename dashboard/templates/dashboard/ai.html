@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="grey-text text-darken-1">هوش مصنوعی</h4>
+    
+    <div class="row">
+        <div class="col s12 m8">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">چت با AI</span>
+                    <div style="height: 400px; overflow-y: auto; background: #f5f5f5; padding: 15px; border-radius: 8px;">
+                        <div class="chat-message" style="margin-bottom: 10px;">
+                            <div style="background: #e3f2fd; padding: 10px; border-radius: 15px; display: inline-block;">
+                                سلام! چطور می‌تونم کمکتون کنم؟
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-field" style="margin-top: 20px;">
+                        <textarea id="ai-input" class="materialize-textarea"></textarea>
+                        <label for="ai-input">پیام خود را بنویسید...</label>
+                    </div>
+                </div>
+                <div class="card-action">
+                    <a href="#" class="waves-effect waves-light btn blue">
+                        <i class="material-icons left">send</i>ارسال
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col s12 m4">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">مدل‌های AI</span>
+                    <ul class="collection">
+                        <li class="collection-item">
+                            <div>GPT-4<a href="#!" class="secondary-content">
+                                <i class="material-icons green-text">check_circle</i>
+                            </a></div>
+                        </li>
+                        <li class="collection-item">
+                            <div>Claude 3<a href="#!" class="secondary-content">
+                                <i class="material-icons grey-text">radio_button_unchecked</i>
+                            </a></div>
+                        </li>
+                        <li class="collection-item">
+                            <div>Gemini Pro<a href="#!" class="secondary-content">
+                                <i class="material-icons grey-text">radio_button_unchecked</i>
+                            </a></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

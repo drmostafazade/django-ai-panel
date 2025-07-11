@@ -1,12 +1,16 @@
 from django.contrib import admin
-from django.urls import path, include
-from core.auth_views import login_view, logout_view, dashboard_view
+from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+from dashboard import views
+from dashboard.auth_views import login_view, logout_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', dashboard_view, name='home'),
-    path('dashboard/', dashboard_view, name='dashboard'),
-    path('auth/login/', login_view, name='login'),
-    path('auth/logout/', logout_view, name='logout'),
-    path('git/', include('git_integration.urls')),
-]
+    path('', views.home, name='home'),
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
+    path('git/', views.git_view, name='git'),
+    path('terminal/', views.terminal_view, name='terminal'),
+    path('ai/', views.ai_view, name='ai'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

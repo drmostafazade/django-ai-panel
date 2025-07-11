@@ -1,316 +1,297 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}پنل توسعه هوشمند{% endblock %}</title>
+    <title>{% block title %}پنل مدیریت بسپار{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="/static/css/material-icons.css" rel="stylesheet">
+    
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="/static/css/materialize.min.css">
     
     <style>
-        /* Django Admin-inspired styles */
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
-        
         :root {
-            --primary: #417690;
-            --secondary: #79aec8;
-            --success: #70bf2b;
-            --warning: #efb80b;
-            --error: #ba2121;
-            --body-bg: #f8f8f8;
-            --content-bg: #fff;
-            --header-bg: #417690;
-            --border: #ddd;
+            --google-blue: #1a73e8;
+            --google-red: #ea4335;
+            --google-yellow: #fbbc04;
+            --google-green: #34a853;
+            --background: #f8f9fa;
+            --surface: #ffffff;
+            --on-surface: #202124;
+            --on-surface-variant: #5f6368;
         }
         
         * {
-            box-sizing: border-box;
+            font-family: 'Vazirmatn', 'Google Sans', 'Roboto', sans-serif;
         }
         
         body {
-            margin: 0;
-            font-family: 'Vazirmatn', 'Roboto', sans-serif;
-            background: var(--body-bg);
-            color: #333;
+            background-color: var(--background);
+            color: var(--on-surface);
             direction: rtl;
-            font-size: 14px;
-            line-height: 1.6;
         }
         
-        /* Header */
-        #header {
-            background: var(--header-bg);
-            color: white;
-            padding: 0;
-            height: 50px;
+        /* Google-style Navbar */
+        nav {
+            background-color: var(--surface);
+            box-shadow: 0 1px 3px 0 rgba(60,64,67,0.08);
+            height: 64px;
+        }
+        
+        nav .brand-logo {
+            color: var(--on-surface);
+            font-size: 22px;
+            font-weight: 400;
+            padding-right: 24px;
+        }
+        
+        nav ul a {
+            color: var(--on-surface-variant);
+        }
+        
+        nav ul a:hover {
+            background-color: rgba(60,64,67,0.08);
+        }
+        
+        /* Google-style Sidenav */
+        .sidenav {
+            width: 280px;
+            background-color: var(--surface);
+            padding-top: 0;
+        }
+        
+        .sidenav li > a {
+            color: var(--on-surface);
+            font-size: 14px;
+            font-weight: 500;
+            height: 48px;
+            line-height: 48px;
+            padding: 0 24px;
+        }
+        
+        .sidenav li > a:hover {
+            background-color: rgba(60,64,67,0.04);
+            border-radius: 0 24px 24px 0;
+            margin-left: 8px;
+        }
+        
+        .sidenav li > a.active {
+            background-color: #e8f0fe;
+            color: var(--google-blue);
+            border-radius: 0 24px 24px 0;
+            margin-left: 8px;
+        }
+        
+        .sidenav li > a > i {
+            margin: 0 0 0 24px;
+            color: var(--on-surface-variant);
+        }
+        
+        .sidenav li > a.active > i {
+            color: var(--google-blue);
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 24px;
+        }
+        
+        @media only screen and (min-width: 993px) {
+            .main-content {
+                margin-right: 280px;
+            }
+        }
+        
+        /* Google-style Cards */
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover {
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+        }
+        
+        .card .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--on-surface);
+        }
+        
+        .card-stats {
+            text-align: center;
+        }
+        
+        .card-stats .card-number {
+            font-size: 48px;
+            font-weight: 300;
+            line-height: 1;
+            margin: 16px 0;
+        }
+        
+        .card-stats .card-label {
+            font-size: 14px;
+            color: var(--on-surface-variant);
+        }
+        
+        /* Google-style Buttons */
+        .btn, .btn-large {
+            border-radius: 4px;
+            text-transform: none;
+            font-weight: 500;
+            letter-spacing: 0.25px;
+            box-shadow: none;
+        }
+        
+        .btn:hover, .btn-large:hover {
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+        }
+        
+        .btn-google-blue {
+            background-color: var(--google-blue) !important;
+        }
+        
+        .btn-google-red {
+            background-color: var(--google-red) !important;
+        }
+        
+        .btn-google-green {
+            background-color: var(--google-green) !important;
+        }
+        
+        .btn-google-yellow {
+            background-color: var(--google-yellow) !important;
+            color: var(--on-surface) !important;
+        }
+        
+        /* Logo Section */
+        .logo-section {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.12);
+        }
+        
+        .logo-section img {
+            height: 32px;
+        }
+        
+        /* User Section */
+        .user-section {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(0,0,0,0.12);
             display: flex;
             align-items: center;
         }
         
-        #branding {
-            padding: 0 20px;
-        }
-        
-        #branding h1 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 400;
-        }
-        
-        #user-tools {
-            margin-right: auto;
-            padding: 0 20px;
-            font-size: 13px;
-        }
-        
-        #user-tools a {
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--google-blue);
             color: white;
-            text-decoration: none;
-            margin-right: 15px;
-        }
-        
-        #user-tools a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Navigation */
-        #nav {
-            background: var(--secondary);
-            padding: 10px 20px;
-        }
-        
-        #nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-        
-        #nav a:hover,
-        #nav a.active {
-            background: rgba(255,255,255,0.2);
-        }
-        
-        /* Content */
-        #content {
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .module {
-            background: var(--content-bg);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .module h2 {
-            background: #f0f0f0;
-            margin: 0;
-            padding: 10px 15px;
-            font-size: 16px;
-            font-weight: 500;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .module-content {
-            padding: 20px;
-        }
-        
-        /* Forms */
-        .form-row {
-            margin-bottom: 15px;
-        }
-        
-        .form-row label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 3px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--secondary);
-        }
-        
-        .help-text {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .help-text a {
-            color: var(--primary);
-        }
-        
-        /* Buttons */
-        .button,
-        input[type="submit"] {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .button:hover,
-        input[type="submit"]:hover {
-            background: #205067;
-        }
-        
-        .button.secondary {
-            background: #f0f0f0;
-            color: #333;
-            border: 1px solid var(--border);
-        }
-        
-        .button.secondary:hover {
-            background: #e0e0e0;
-        }
-        
-        /* Messages */
-        .messages {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 20px;
-        }
-        
-        .message {
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            border-radius: 3px;
-            border: 1px solid;
-        }
-        
-        .message.success {
-            background: #dff0d8;
-            color: var(--success);
-            border-color: #d6e9c6;
-        }
-        
-        .message.error {
-            background: #f2dede;
-            color: var(--error);
-            border-color: #ebccd1;
-        }
-        
-        .message.warning {
-            background: #fcf8e3;
-            color: var(--warning);
-            border-color: #faebcc;
-        }
-        
-        /* Dashboard Cards */
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .dashboard-card {
-            background: var(--content-bg);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .dashboard-card h3 {
-            margin: 0 0 10px;
-            font-size: 18px;
-            font-weight: 400;
-        }
-        
-        .dashboard-card .value {
-            font-size: 36px;
-            font-weight: 300;
-            color: var(--primary);
-        }
-        
-        .dashboard-card .label {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 10px;
-            text-align: right;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        th {
-            background: #f0f0f0;
-            font-weight: 500;
-        }
-        
-        tr:hover {
-            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 12px;
         }
     </style>
-    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div id="header">
-        <div id="branding">
-            <h1>پنل توسعه هوشمند بسپار</h1>
+    <!-- Navbar -->
+    <nav>
+        <div class="nav-wrapper">
+            <a href="/" class="brand-logo">
+                <span style="color: #4285f4;">پنل</span>
+                <span style="color: #ea4335;">مدیریت</span>
+                <span style="color: #fbbc04;">بسپار</span>
+            </a>
+            <a href="#" data-target="mobile-nav" class="sidenav-trigger">
+                <i class="material-icons" style="color: var(--on-surface);">menu</i>
+            </a>
+            <ul class="left hide-on-med-and-down">
+                {% if user.is_authenticated %}
+                <li>
+                    <a href="/admin/" style="display: flex; align-items: center;">
+                        <div class="user-avatar" style="font-size: 16px; margin-left: 8px;">
+                            {{ user.username|first|upper }}
+                        </div>
+                        {{ user.username }}
+                    </a>
+                </li>
+                {% else %}
+                <li><a href="/login/" class="btn btn-google-blue">ورود</a></li>
+                {% endif %}
+            </ul>
         </div>
+    </nav>
+
+    <!-- Desktop Sidenav -->
+    <ul class="sidenav sidenav-fixed" id="desktop-nav">
+        <li class="logo-section">
+            <img src="https://www.gstatic.com/images/branding/product/2x/google_cloud_48dp.png" alt="Logo">
+        </li>
         {% if user.is_authenticated %}
-        <div id="user-tools">
-            خوش آمدید، <strong>{{ user.username }}</strong> /
-            <a href="{% url 'admin:index' %}">مدیریت</a> /
-            <a href="{% url 'logout' %}">خروج</a>
-        </div>
+        <li class="user-section">
+            <div class="user-avatar">{{ user.username|first|upper }}</div>
+            <div>
+                <div style="font-weight: 500;">{{ user.username }}</div>
+                <div style="font-size: 12px; color: var(--on-surface-variant);">{{ user.email|default:"admin@bsepar.com" }}</div>
+            </div>
+        </li>
         {% endif %}
-    </div>
-    
-    {% if user.is_authenticated %}
-    <div id="nav">
-        <a href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>
-            داشبورد
-        </a>
-        <a href="{% url 'git_integration:settings' %}" {% if 'git' in request.path %}class="active"{% endif %}>
-            تنظیمات Git
-        </a>
-        <a href="{% url 'git_integration:repositories' %}" {% if 'repositories' in request.path %}class="active"{% endif %}>
-            مخازن
-        </a>
-    </div>
-    {% endif %}
-    
-    <div id="content">
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li class="message {{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
+        <li><a href="/" class="waves-effect {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <i class="material-icons">dashboard</i>داشبورد
+        </a></li>
+        <li><a href="/git/" class="waves-effect {% if request.resolver_match.url_name == 'git' %}active{% endif %}">
+            <i class="material-icons">code</i>مدیریت Git
+        </a></li>
+        <li><a href="/terminal/" class="waves-effect {% if request.resolver_match.url_name == 'terminal' %}active{% endif %}">
+            <i class="material-icons">computer</i>ترمینال
+        </a></li>
+        <li><a href="/ai/" class="waves-effect {% if request.resolver_match.url_name == 'ai' %}active{% endif %}">
+            <i class="material-icons">psychology</i>هوش مصنوعی
+        </a></li>
+        <li class="divider" style="margin: 8px 0;"></li>
+        <li><a href="/admin/" class="waves-effect">
+            <i class="material-icons">settings</i>تنظیمات
+        </a></li>
+        {% if user.is_authenticated %}
+        <li><a href="/logout/" class="waves-effect">
+            <i class="material-icons">exit_to_app</i>خروج
+        </a></li>
         {% endif %}
-        
+    </ul>
+
+    <!-- Mobile Sidenav -->
+    <ul class="sidenav" id="mobile-nav">
+        <!-- Same content as desktop -->
+    </ul>
+
+    <!-- Main Content -->
+    <main class="main-content">
         {% block content %}{% endblock %}
-    </div>
-    
+    </main>
+
+    <!-- Scripts -->
+    <script src="/static/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize components
+            M.Sidenav.init(document.querySelectorAll('.sidenav'), {edge: 'right'});
+            M.Tooltip.init(document.querySelectorAll('.tooltipped'));
+            M.FloatingActionButton.init(document.querySelectorAll('.fixed-action-btn'));
+            
+            // Initialize textareas
+            M.textareaAutoResize(document.querySelector('#ai-input'));
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
