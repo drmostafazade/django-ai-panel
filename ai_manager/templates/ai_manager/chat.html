@@ -1,62 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="mb-4">چت با هوش مصنوعی</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="page-title mb-0">چت با هوش مصنوعی</h1>
+    <div class="d-flex gap-2">
+        <select class="form-select" style="width: auto;">
+            <option>Claude (Anthropic)</option>
+            <option>OpenAI GPT-4</option>
+            <option>Google Gemini</option>
+        </select>
+        <a href="{% url 'api_settings' %}" class="btn btn-outline">تنظیمات API</a>
+    </div>
+</div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card" style="height: calc(100vh - 200px);">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <select class="form-select" id="ai-provider">
-                            <option value="claude">Claude (Anthropic)</option>
-                            <option value="openai">OpenAI (GPT)</option>
-                            <option value="gemini">Google Gemini</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 text-end">
-                        <a href="{% url 'api_settings' %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-key"></i> مدیریت API Keys
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body" style="height: calc(100% - 120px); overflow-y: auto;" id="chat-messages">
-                <div class="text-center text-muted" style="margin-top: 100px;">
-                    <i class="bi bi-chat-dots" style="font-size: 4rem;"></i>
-                    <p class="mt-3">چت را شروع کنید</p>
-                </div>
-            </div>
-            <div class="card-footer">
-                <div class="input-group">
-                    <textarea class="form-control" id="message-input" rows="2" placeholder="پیام خود را بنویسید..."></textarea>
-                    <button class="btn btn-primary" id="send-btn">
-                        <i class="bi bi-send"></i> ارسال
-                    </button>
-                </div>
-            </div>
+<div class="card chat-container">
+    <div class="chat-messages" id="chatMessages">
+        <div class="text-center text-secondary" style="margin-top: 200px;">
+            <p>برای شروع پیام خود را ارسال کنید</p>
+        </div>
+    </div>
+    <div class="card-footer bg-white">
+        <div class="input-group">
+            <textarea class="form-control" rows="2" placeholder="پیام خود را بنویسید..." id="messageInput"></textarea>
+            <button class="btn btn-primary" onclick="sendMessage()">ارسال</button>
         </div>
     </div>
 </div>
 
 <script>
-document.getElementById('send-btn').addEventListener('click', function() {
-    const messageInput = document.getElementById('message-input');
-    const message = messageInput.value.trim();
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const messages = document.getElementById('chatMessages');
+    const message = input.value.trim();
+    
     if (message) {
-        // Add user message
-        const chatMessages = document.getElementById('chat-messages');
-        chatMessages.innerHTML = `
-            <div class="alert alert-primary mb-2">
-                <strong>شما:</strong> ${message}
+        messages.innerHTML = `
+            <div class="message user">
+                <div class="message-content">${message}</div>
             </div>
-            <div class="alert alert-secondary">
-                <strong>AI:</strong> در حال توسعه...
+            <div class="message">
+                <div class="message-content">در حال توسعه...</div>
             </div>
         `;
-        messageInput.value = '';
+        input.value = '';
     }
-});
+}
 </script>
 {% endblock %}

@@ -1,74 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2 class="mb-4">داشبورد</h2>
+<h1 class="page-title">داشبورد</h1>
 
-<!-- Stats Cards -->
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-folder-fill text-primary" style="font-size: 3rem;"></i>
-                <h3 class="mt-3">{{ stats.projects }}</h3>
-                <p class="text-muted">پروژه فعال</p>
-            </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-label">پروژه‌های فعال</div>
+            <div class="stat-number">{{ stats.projects }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-git text-success" style="font-size: 3rem;"></i>
-                <h3 class="mt-3">{{ stats.commits }}</h3>
-                <p class="text-muted">کامیت این ماه</p>
-            </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-label">کامیت‌ها</div>
+            <div class="stat-number">{{ stats.commits }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-bug-fill text-warning" style="font-size: 3rem;"></i>
-                <h3 class="mt-3">{{ stats.issues }}</h3>
-                <p class="text-muted">مسئله باز</p>
-            </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-label">مسائل باز</div>
+            <div class="stat-number">{{ stats.issues }}</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-people-fill text-danger" style="font-size: 3rem;"></i>
-                <h3 class="mt-3">{{ stats.users }}</h3>
-                <p class="text-muted">همکار</p>
-            </div>
+    <div class="col-md-3 mb-3">
+        <div class="stat-card">
+            <div class="stat-label">همکاران</div>
+            <div class="stat-number">{{ stats.users }}</div>
         </div>
     </div>
 </div>
 
-<!-- Quick Actions -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">دسترسی سریع</h5>
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">دسترسی سریع</h5>
+                <div class="d-grid gap-2">
+                    <a href="/ai-chat/" class="btn btn-primary">شروع چت با AI</a>
+                    <a href="/git/" class="btn btn-outline">مدیریت مخازن گیت</a>
+                    <a href="/terminal/" class="btn btn-outline">دسترسی به ترمینال</a>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-3 mb-3">
-                <a href="/ai-chat/" class="btn btn-primary w-100">
-                    <i class="bi bi-robot"></i> چت با AI
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="/git/" class="btn btn-success w-100">
-                    <i class="bi bi-git"></i> مدیریت Git
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="/terminal/" class="btn btn-info w-100">
-                    <i class="bi bi-terminal"></i> ترمینال
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="/admin/" class="btn btn-warning w-100">
-                    <i class="bi bi-gear"></i> تنظیمات
-                </a>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-3">فعالیت‌های اخیر</h5>
+                <div class="text-secondary">
+                    <p class="mb-2">• ایجاد پروژه جدید - 2 ساعت پیش</p>
+                    <p class="mb-2">• آپدیت مخزن گیت - 5 ساعت پیش</p>
+                    <p class="mb-2">• اجرای دستورات ترمینال - دیروز</p>
+                </div>
             </div>
         </div>
     </div>

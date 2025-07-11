@@ -5,7 +5,6 @@ from .models import GitHubToken, Repository
 import requests
 
 @login_required
-def git_settings(request):
     token = GitHubToken.objects.filter(user=request.user).first()
     
     if request.method == 'POST':
