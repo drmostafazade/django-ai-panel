@@ -1,41 +1,156 @@
 {% extends 'base.html' %}
-{% block title %}داشبورد - پنل توسعه هوشمند{% endblock %}
+
+{% block title %}داشبورد - پنل مدیریت{% endblock %}
 
 {% block content %}
-<h1>داشبورد</h1>
+<h1 class="page-title mb-4">داشبورد</h1>
 
-<div class="dashboard-cards">
-    <div class="dashboard-card">
-        <h3>وضعیت سیستم</h3>
-        <div class="value">✅</div>
-        <div class="label">فعال و آماده</div>
+<!-- کارت‌های آمار بالا -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-primary">12</h2>
+                <p class="text-muted mb-0">پروژه‌های فعال</p>
+            </div>
+        </div>
     </div>
-    
-    <div class="dashboard-card">
-        <h3>مخازن Git</h3>
-        <div class="value">{{ repo_count|default:"0" }}</div>
-        <div class="label">مخزن متصل</div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-success">347</h2>
+                <p class="text-muted mb-0">کامیت‌ها</p>
+            </div>
+        </div>
     </div>
-    
-    <div class="dashboard-card">
-        <h3>توکن GitHub</h3>
-        <div class="value">{% if has_token %}✓{% else %}✗{% endif %}</div>
-        <div class="label">{% if has_token %}تنظیم شده{% else %}تنظیم نشده{% endif %}</div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-warning">23</h2>
+                <p class="text-muted mb-0">مسائل باز</p>
+            </div>
+        </div>
     </div>
-    
-    <div class="dashboard-card">
-        <h3>AI Services</h3>
-        <div class="value">0</div>
-        <div class="label">به زودی...</div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-info">5</h2>
+                <p class="text-muted mb-0">همکاران</p>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="module">
-    <h2>دسترسی سریع</h2>
-    <div class="module-content">
-        <a href="{% url 'git' %}" class="button">تنظیمات GitHub</a>
-        <a href="{% url 'git' %}" class="button secondary">مشاهده مخازن</a>
-        <a href="{% url 'admin:index' %}" class="button secondary">پنل مدیریت</a>
+<!-- کارت وضعیت سیستم -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">وضعیت سیستم</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 text-center mb-3">
+                <div class="p-3 border rounded">
+                    <div class="mb-2">
+                        <span class="badge bg-success">فعال و آماده</span>
+                    </div>
+                    <h1 class="text-success">✅</h1>
+                    <p class="text-muted mb-0">وضعیت سیستم</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 text-center mb-3">
+                <div class="p-3 border rounded">
+                    <div class="mb-2">
+                        <span class="badge bg-primary">مخازن Git</span>
+                    </div>
+                    <h1 class="text-primary">{{ repo_count|default:"0" }}</h1>
+                    <p class="text-muted mb-0">مخزن متصل</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 text-center mb-3">
+                <div class="p-3 border rounded">
+                    <div class="mb-2">
+                        <span class="badge bg-{% if has_token %}success{% else %}danger{% endif %}">
+                            توکن GitHub
+                        </span>
+                    </div>
+                    <h1 class="{% if has_token %}text-success{% else %}text-danger{% endif %}">
+                        {% if has_token %}✓{% else %}✗{% endif %}
+                    </h1>
+                    <p class="text-muted mb-0">
+                        {% if has_token %}تنظیم شده{% else %}تنظیم نشده{% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 text-center mb-3">
+                <div class="p-3 border rounded">
+                    <div class="mb-2">
+                        <span class="badge bg-warning text-dark">AI Services</span>
+                    </div>
+                    <h1 class="text-warning">0</h1>
+                    <p class="text-muted mb-0">به زودی...</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- دسترسی سریع -->
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">دسترسی سریع</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <a href="{% url 'git' %}" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-github"></i> تنظیمات GitHub
+                </a>
+            </div>
+            <div class="col-md-4 mb-2">
+                <a href="{% url 'git' %}" class="btn btn-outline-primary btn-lg w-100">
+                    <i class="bi bi-folder"></i> مشاهده مخازن
+                </a>
+            </div>
+            <div class="col-md-4 mb-2">
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary btn-lg w-100">
+                    <i class="bi bi-gear"></i> پنل مدیریت
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.page-title {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.card {
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.border {
+    transition: all 0.3s;
+}
+
+.border:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+</style>
 {% endblock %}
