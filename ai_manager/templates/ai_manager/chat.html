@@ -11,3 +11,229 @@
     </div>
 </div>
 {% endblock %}
+
+<script>
+// Chat functionality
+async function sendMessage() {
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value.trim();
+    const provider = document.getElementById('ai-provider').value;
+    
+    if (!message) return;
+    
+    // نمایش پیام کاربر
+    addMessage(message, 'user');
+    messageInput.value = '';
+    M.textareaAutoResize(messageInput);
+    
+    // نمایش در حال تایپ
+    const typingId = addTypingIndicator();
+    
+    try {
+        const response = await fetch('/ai-chat/api/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                provider: provider
+            })
+        });
+        
+        const data = await response.json();
+        removeTypingIndicator(typingId);
+        
+        if (data.success) {
+            addMessage(data.content, 'ai');
+            updateTokenUsage(data.usage);
+        } else {
+            addMessage('خطا: ' + data.error, 'error');
+        }
+    } catch (error) {
+        removeTypingIndicator(typingId);
+        addMessage('خطا در ارتباط با سرور', 'error');
+    }
+}
+
+function addMessage(content, type) {
+    const chatMessages = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    messageDiv.innerHTML = `
+        <div class="card-panel ${type === 'user' ? 'blue lighten-5' : type === 'ai' ? 'grey lighten-4' : 'red lighten-4'}">
+            <p>${content}</p>
+        </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addTypingIndicator() {
+    const id = Date.now();
+    const chatMessages = document.getElementById('chat-messages');
+    const typingDiv = document.createElement('div');
+    typingDiv.id = `typing-${id}`;
+    typingDiv.className = 'typing-indicator';
+    typingDiv.innerHTML = `
+        <div class="card-panel grey lighten-4">
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    return id;
+}
+
+function removeTypingIndicator(id) {
+    const element = document.getElementById(`typing-${id}`);
+    if (element) element.remove();
+}
+
+function updateTokenUsage(usage) {
+    // TODO: Update token usage display
+    console.log('Token usage:', usage);
+}
+</script>
+
+<style>
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    background: #666;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+@keyframes typing {
+    0%, 60%, 100% {
+        opacity: 0.3;
+    }
+    30% {
+        opacity: 1;
+    }
+}
+</style>
+
+<script>
+// Chat functionality
+async function sendMessage() {
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value.trim();
+    const provider = document.getElementById('ai-provider').value;
+    
+    if (!message) return;
+    
+    // نمایش پیام کاربر
+    addMessage(message, 'user');
+    messageInput.value = '';
+    M.textareaAutoResize(messageInput);
+    
+    // نمایش در حال تایپ
+    const typingId = addTypingIndicator();
+    
+    try {
+        const response = await fetch('/ai-chat/api/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                provider: provider
+            })
+        });
+        
+        const data = await response.json();
+        removeTypingIndicator(typingId);
+        
+        if (data.success) {
+            addMessage(data.content, 'ai');
+            updateTokenUsage(data.usage);
+        } else {
+            addMessage('خطا: ' + data.error, 'error');
+        }
+    } catch (error) {
+        removeTypingIndicator(typingId);
+        addMessage('خطا در ارتباط با سرور', 'error');
+    }
+}
+
+function addMessage(content, type) {
+    const chatMessages = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    messageDiv.innerHTML = `
+        <div class="card-panel ${type === 'user' ? 'blue lighten-5' : type === 'ai' ? 'grey lighten-4' : 'red lighten-4'}">
+            <p>${content}</p>
+        </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addTypingIndicator() {
+    const id = Date.now();
+    const chatMessages = document.getElementById('chat-messages');
+    const typingDiv = document.createElement('div');
+    typingDiv.id = `typing-${id}`;
+    typingDiv.className = 'typing-indicator';
+    typingDiv.innerHTML = `
+        <div class="card-panel grey lighten-4">
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    return id;
+}
+
+function removeTypingIndicator(id) {
+    const element = document.getElementById(`typing-${id}`);
+    if (element) element.remove();
+}
+
+function updateTokenUsage(usage) {
+    // TODO: Update token usage display
+    console.log('Token usage:', usage);
+}
+</script>
+
+<style>
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+.typing-dots span {
+    width: 8px;
+    height: 8px;
+    background: #666;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+@keyframes typing {
+    0%, 60%, 100% {
+        opacity: 0.3;
+    }
+    30% {
+        opacity: 1;
+    }
+}
+</style>
