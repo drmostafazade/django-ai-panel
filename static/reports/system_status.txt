@@ -1,0 +1,16 @@
+=== BSEPAR PANEL COMPLETE ANALYSIS ===
+Generated: $(date)
+Server: $(hostname)
+User: $(whoami)
+Location: $(pwd)
+
+=== PROJECT STRUCTURE ===
+Current Working Directory: /var/www/bsepar_panel
+Project Root: /var/www/bsepar_panel
+Django Version: 5.2.4
+
+=== TEMPLATE STATUS ===
+Main template: /var/www/bsepar_panel/templates/api_settings.html
+Size: 29936 bytes
+Has btn-balance: YES
+Has action-btn: YES

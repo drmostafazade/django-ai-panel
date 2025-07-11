@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('test-buttons/', test_buttons_view, name='test_buttons'),
     path('', views.ai_chat, name='ai_chat'),
     path('settings/', views.api_settings, name='api_settings'),
     path('toggle-key/', views.toggle_api_key, name='toggle_api_key'),
@@ -10,4 +11,9 @@ urlpatterns = [
     path('test-connection/', views.test_api_connection, name='test_api_connection'),
     path('retest-key/', views.retest_api_key, name='retest_api_key'),
     path('api/chat/', views.chat_api, name='chat_api'),
+    # URLs جدید
+    path('balance/<int:key_id>/', views.get_balance, name='get_balance'),
+    path('personal/<int:key_id>/', views.personal_settings, name='personal_settings'),
+    path('add-prompt/<int:key_id>/', views.add_prompt, name='add_prompt'),
 ]
+from .test_buttons import test_buttons_view

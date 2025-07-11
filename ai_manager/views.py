@@ -87,7 +87,7 @@ def api_settings(request):
         'total_tokens_month': month_stats['total_tokens'] or 0,
         'total_cost_month': month_stats['total_cost'] or 0,
     }
-    return render(request, 'ai_manager/api_settings.html', context)
+    return render(request, 'api_settings.html', context)
 
 @login_required
 def get_available_models(request):
@@ -317,3 +317,187 @@ def chat_api(request):
 # اضافه کردن import logging در ابتدای فایل
 import logging
 logger = logging.getLogger(__name__)
+
+from .services_balance import BalanceService
+
+@login_required
+def get_balance(request, key_id):
+    """دریافت موجودی API Key"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        balance_info = BalanceService.get_balance_for_provider(
+            api_key.provider.name, 
+            api_key.key
+        )
+        
+        if balance_info['success']:
+            api_key.last_tested = timezone.now()
+            api_key.save()
+        
+        return JsonResponse(balance_info)
+        
+    except APIKey.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'API Key یافت نشد'})
+
+@login_required
+def personal_settings(request, key_id):
+    """صفحه تنظیمات شخصی"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        if request.method == 'POST':
+            context = request.POST.get('context', '')
+            api_key.personal_context = context
+            api_key.save()
+            
+            messages.success(request, 'تنظیمات شخصی ذخیره شد')
+            return redirect('api_settings')
+        
+        context = {
+            'api_key': api_key,
+            'personal_context': getattr(api_key, 'personal_context', ''),
+        }
+        return render(request, 'ai_manager/personal_settings.html', context)
+        
+    except APIKey.DoesNotExist:
+        messages.error(request, 'API Key یافت نشد')
+        return redirect('api_settings')
+
+@login_required
+def add_prompt(request, key_id):
+    """افزودن پرامپت شخصی"""
+    if request.method == 'POST':
+        try:
+            api_key = APIKey.objects.get(id=key_id, user=request.user)
+            prompt_title = request.POST.get('title')
+            prompt_content = request.POST.get('content')
+            
+            messages.success(request, f'پرامپت "{prompt_title}" اضافه شد')
+            
+        except APIKey.DoesNotExist:
+            messages.error(request, 'API Key یافت نشد')
+    
+    return redirect('api_settings')
+
+# Import های جدید
+from .services_balance import BalanceService
+import logging
+
+logger = logging.getLogger(__name__)
+
+@login_required
+def get_balance(request, key_id):
+    """دریافت موجودی API Key"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        # دریافت موجودی
+        balance_info = BalanceService.get_balance_for_provider(
+            api_key.provider.name, 
+            api_key.key
+        )
+        
+        # آپدیت last_tested
+        if balance_info['success']:
+            api_key.last_tested = timezone.now()
+            api_key.save()
+        
+        return JsonResponse(balance_info)
+        
+    except APIKey.DoesNotExist:
+        return JsonResponse({
+            'success': False, 
+            'error': 'API Key یافت نشد'
+        }, status=404)
+    except Exception as e:
+        logger.error(f"Error in get_balance: {e}")
+        return JsonResponse({
+            'success': False, 
+            'error': 'خطای سرور'
+        }, status=500)
+
+@login_required
+def personal_settings(request, key_id):
+    """صفحه تنظیمات شخصی"""
+    try:
+        api_key = APIKey.objects.get(id=key_id, user=request.user)
+        
+        if request.method == 'POST':
+            # ذخیره تنظیمات شخصی
+            context = request.POST.get('context', '')
+            
+            # اضافه کردن فیلد personal_context اگر وجود ندارد
+            if not hasattr(api_key, 'personal_context'):
+                # اضافه کردن فیلد به صورت dynamic
+                from django.db import connection
+                with connection.cursor() as cursor:
+                    try:
+                        cursor.execute(
+                            "ALTER TABLE ai_manager_apikey ADD COLUMN personal_context TEXT DEFAULT ''"
+                        )
+                    except:
+                        pass  # فیلد از قبل وجود دارد
+            
+            api_key.personal_context = context
+            api_key.save()
+            
+            messages.success(request, 'تنظیمات شخصی ذخیره شد')
+            return redirect('api_settings')
+        
+        # دریافت context فعلی
+        personal_context = getattr(api_key, 'personal_context', '')
+        
+        context = {
+            'api_key': api_key,
+            'personal_context': personal_context,
+        }
+        return render(request, 'ai_manager/personal_settings.html', context)
+        
+    except APIKey.DoesNotExist:
+        messages.error(request, 'API Key یافت نشد')
+        return redirect('api_settings')
+    except Exception as e:
+        logger.error(f"Error in personal_settings: {e}")
+        messages.error(request, 'خطا در بارگذاری صفحه')
+        return redirect('api_settings')
+
+@login_required
+def add_prompt(request, key_id):
+    """افزودن پرامپت شخصی سریع"""
+    if request.method == 'POST':
+        try:
+            api_key = APIKey.objects.get(id=key_id, user=request.user)
+            
+            prompt_title = request.POST.get('title', '').strip()
+            prompt_content = request.POST.get('content', '').strip()
+            
+            if prompt_title and prompt_content:
+                # ذخیره در context شخصی یا جای دیگر
+                current_context = getattr(api_key, 'personal_context', '')
+                new_prompt = f"\n\n--- {prompt_title} ---\n{prompt_content}"
+                
+                # اضافه کردن فیلد اگر وجود ندارد
+                if not hasattr(api_key, 'personal_context'):
+                    from django.db import connection
+                    with connection.cursor() as cursor:
+                        try:
+                            cursor.execute(
+                                "ALTER TABLE ai_manager_apikey ADD COLUMN personal_context TEXT DEFAULT ''"
+                            )
+                        except:
+                            pass
+                
+                api_key.personal_context = current_context + new_prompt
+                api_key.save()
+                
+                messages.success(request, f'پرامپت "{prompt_title}" اضافه شد')
+            else:
+                messages.error(request, 'عنوان و متن پرامپت الزامی است')
+                
+        except APIKey.DoesNotExist:
+            messages.error(request, 'API Key یافت نشد')
+        except Exception as e:
+            logger.error(f"Error in add_prompt: {e}")
+            messages.error(request, 'خطا در افزودن پرامپت')
+    
+    return redirect('api_settings')

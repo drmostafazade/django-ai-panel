@@ -1,0 +1,321 @@
+================================================================================
+🔍 BSEPAR PANEL - SYSTEM ANALYSIS REPORT
+📅 Generated: 2025-07-11 21:18:49.693714
+================================================================================
+
+1️⃣ BASE ENVIRONMENT
+--------------------------------------------------
+📂 Current Directory: /var/www/bsepar_panel
+🐍 Python Version: Python 3.12.3
+🔧 Virtual Environment: /var/www/bsepar_panel/venv
+⚙️ Django Check: ❌ ERROR
+   Error: /bin/sh: 1: source: not found
+
+2️⃣ PROJECT STRUCTURE
+--------------------------------------------------
+📁 bsepar_panel/
+  📄 main
+  📄 README.md
+  📄 POSTGRESQL_AUTH_CHANGES.md
+  📄 gunicorn.sock
+  📄 PHASE1_REPORT.md
+  ... and 12 more files
+  📁 core/
+    📄 apps.py
+    📄 __init__.py
+    📄 urls.py
+    📄 views.py
+    📄 models.py
+    ... and 3 more files
+    📁 migrations/
+      📄 __init__.py
+  📁 static/
+    📄 system_report.txt
+    📁 fonts/
+      📄 MaterialIcons-Regular.woff2
+    📁 css/
+      📄 material-icons.css
+      📄 bootstrap.min.css
+      📄 bootstrap-icons.css
+      📄 materialize.min.css
+    📁 js/
+      📄 chart.min.js
+      📄 bootstrap.bundle.min.js
+      📄 materialize.min.js
+  📁 .git/
+    📄 COMMIT_EDITMSG
+    📄 ORIG_HEAD
+    📄 index
+    📄 FETCH_HEAD
+    📄 description
+    ... and 3 more files
+    📁 logs/
+      📄 HEAD
+    📁 branches/
+    📁 info/
+      📄 exclude
+    📁 hooks/
+      📄 commit-msg.sample
+      📄 sendemail-validate.sample
+      📄 pre-applypatch.sample
+      📄 pre-push.sample
+      📄 pre-merge-commit.sample
+      ... and 9 more files
+    📁 objects/
+    📁 refs/
+  📁 templates/
+    📄 api_settings.html
+    📄 api_settings.html.old
+    📄 api_settings.html.backup
+    📄 base.html
+    📁 base/
+      📄 base.html
+    📁 auth/
+      📄 login.html
+    📁 git_integration/
+      📄 settings.html
+      📄 repositories.html
+      📄 base.html
+    📁 dashboard/
+      📄 home.html
+    📁 admin/
+      📄 git_settings.html
+      📄 base_site.html
+  📁 venv/
+    📄 pyvenv.cfg
+    📁 lib/
+    📁 include/
+    📁 bin/
+      📄 fastavro
+      📄 httpx
+      📄 tqdm
+      📄 pyrsa-encrypt
+      📄 python3
+      ... and 22 more files
+  📁 ai_manager/
+    📄 urls_backup.py
+    📄 services.py
+    📄 __init__.py
+    📄 services_balance.py
+    📄 urls.py.backup
+    ... and 7 more files
+    📁 __pycache__/
+      📄 admin.cpython-312.pyc
+      📄 __init__.cpython-312.pyc
+      📄 models.cpython-312.pyc
+    📁 migrations/
+      📄 0003_add_personal_fields.py
+      📄 0001_alter_aiprovider_name_delete_personalprompt.py
+      📄 __init__.py
+      📄 0001_initial.py
+      📄 0003_add_personal_context.py
+      ... and 1 more files
+    📁 templates/
+  📁 git_integration/
+    📄 apps.py
+    📄 __init__.py
+    📄 forms.py
+    📄 urls.py
+    📄 views.py
+    ... and 2 more files
+    📁 migrations/
+      📄 __init__.py
+      📄 0002_fix_fields.py
+      📄 0001_initial.py
+  📁 config/
+    📄 wsgi.py
+    📄 __init__.py
+    📄 asgi.py
+    📄 urls.py
+    📄 settings.py
+    ... and 1 more files
+    📁 __pycache__/
+      📄 wsgi.cpython-312.pyc
+      📄 __init__.cpython-312.pyc
+      📄 settings.cpython-312.pyc
+  📁 dashboard/
+    📄 apps.py
+    📄 __init__.py
+    📄 views.py
+    📄 models.py
+    📄 auth_views.py
+    ... and 2 more files
+    📁 __pycache__/
+      📄 admin.cpython-312.pyc
+      📄 __init__.cpython-312.pyc
+      📄 models.cpython-312.pyc
+      📄 apps.cpython-312.pyc
+    📁 migrations/
+      📄 __init__.py
+    📁 templates/
+  📁 staticfiles/
+    📁 fonts/
+      📄 MaterialIcons-Regular.woff2
+    📁 css/
+      📄 material-icons.css
+      📄 bootstrap.min.css
+      📄 bootstrap-icons.css
+      📄 materialize.min.css
+    📁 js/
+      📄 chart.min.js
+      📄 bootstrap.bundle.min.js
+      📄 materialize.min.js
+    📁 admin/
+
+3️⃣ DJANGO CONFIGURATION FILES
+--------------------------------------------------
+✅ settings.py: /var/www/bsepar_panel/config/settings.py
+   📊 Size: 2186 bytes, Modified: 2025-07-11 06:24:51.340232
+✅ main_urls.py: /var/www/bsepar_panel/config/urls.py
+   📊 Size: 688 bytes, Modified: 2025-07-11 03:44:00.903304
+✅ ai_manager_urls.py: /var/www/bsepar_panel/ai_manager/urls.py
+   📊 Size: 977 bytes, Modified: 2025-07-11 21:13:34.516599
+✅ ai_manager_views.py: /var/www/bsepar_panel/ai_manager/views.py
+   📊 Size: 18214 bytes, Modified: 2025-07-11 21:06:58.275223
+✅ ai_manager_models.py: /var/www/bsepar_panel/ai_manager/models.py
+   📊 Size: 2567 bytes, Modified: 2025-07-11 17:53:56.089979
+
+4️⃣ TEMPLATE FILES
+--------------------------------------------------
+📄 Found 255 template files:
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/api_settings.html
+      Size: 29936 bytes, Modified: 2025-07-11 20:35:34.694834
+      🎯 Contains: btn-balance, action-btn, btn-personal, table-actions
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/api_settings_backup.html
+      Size: 26374 bytes, Modified: 2025-07-11 20:09:20.524254
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/api_settings_broken.html
+      Size: 14589 bytes, Modified: 2025-07-11 17:06:07.615211
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/api_settings_old.html
+      Size: 8261 bytes, Modified: 2025-07-11 17:44:56.682636
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/api_settings_old2.html
+      Size: 28307 bytes, Modified: 2025-07-11 06:12:38.190106
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/api_settings_simple.html
+      Size: 4297 bytes, Modified: 2025-07-11 06:12:38.663107
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/chat.html
+      Size: 2699 bytes, Modified: 2025-07-11 06:12:38.181106
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/partials/api_key_form.html
+      Size: 8261 bytes, Modified: 2025-07-11 17:45:31.934725
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/partials/personal_settings.html
+      Size: 3109 bytes, Modified: 2025-07-11 06:12:38.190106
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/ai_manager/templates/ai_manager/personal_settings.html
+      Size: 7667 bytes, Modified: 2025-07-11 20:08:49.886143
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/dashboard/templates/dashboard/ai.html
+      Size: 173 bytes, Modified: 2025-07-11 03:34:21.812231
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/templates/api_settings.html
+      Size: 29936 bytes, Modified: 2025-07-11 21:05:26.380877
+      🎯 Contains: btn-balance, action-btn, btn-personal, table-actions
+   📄 /var/www/bsepar_panel/venv/lib/python3.12/site-packages/django/contrib/admin/templates/registration/password_reset_email.html
+      Size: 606 bytes, Modified: 2025-07-11 03:34:19.763235
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib/python3.12/site-packages/django/contrib/admindocs/templates/admin_doc/model_detail.html
+      Size: 1922 bytes, Modified: 2025-07-11 03:34:19.635235
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib/python3.12/site-packages/django/contrib/admindocs/templates/admin_doc/template_detail.html
+      Size: 1035 bytes, Modified: 2025-07-11 03:34:19.681235
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib/python3.12/site-packages/django/contrib/admindocs/templates/admin_doc/view_detail.html
+      Size: 904 bytes, Modified: 2025-07-11 03:34:19.597235
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib/python3.12/site-packages/django/forms/templates/django/forms/widgets/email.html
+      Size: 48 bytes, Modified: 2025-07-11 03:34:21.123232
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib64/python3.12/site-packages/django/contrib/admin/templates/registration/password_reset_email.html
+      Size: 606 bytes, Modified: 2025-07-11 03:34:19.763235
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib64/python3.12/site-packages/django/contrib/admindocs/templates/admin_doc/model_detail.html
+      Size: 1922 bytes, Modified: 2025-07-11 03:34:19.635235
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib64/python3.12/site-packages/django/contrib/admindocs/templates/admin_doc/template_detail.html
+      Size: 1035 bytes, Modified: 2025-07-11 03:34:19.681235
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib64/python3.12/site-packages/django/contrib/admindocs/templates/admin_doc/view_detail.html
+      Size: 904 bytes, Modified: 2025-07-11 03:34:19.597235
+      ⚠️ No target CSS classes found
+   📄 /var/www/bsepar_panel/venv/lib64/python3.12/site-packages/django/forms/templates/django/forms/widgets/email.html
+      Size: 48 bytes, Modified: 2025-07-11 03:34:21.123232
+      ⚠️ No target CSS classes found
+
+5️⃣ URL CONFIGURATION
+--------------------------------------------------
+📋 Main URLs (config/urls.py):
+   from django.contrib import admin
+   from django.urls import path, include
+   from django.conf import settings
+   from django.conf.urls.static import static
+   from dashboard import views
+   from dashboard.auth_views...
+
+📋 AI Manager URLs (ai_manager/urls.py):
+   from django.urls import path
+   from . import views
+   
+   urlpatterns = [
+       path('test-buttons/', test_buttons_view, name='test_buttons'),
+       path('', views.ai_chat, name='ai_chat'),
+       path('settings/', ...
+
+6️⃣ STATIC FILES
+--------------------------------------------------
+📁 /var/www/bsepar_panel/static/: 9 files
+📁 /var/www/bsepar_panel/staticfiles/: 135 files
+❌ /var/www/bsepar_panel/ai_manager/static/: NOT FOUND
+
+7️⃣ SYSTEM SERVICES
+--------------------------------------------------
+🔧 gunicorn_bsepar_panel: active
+   📋 Recent logs (last 10 mins):
+      Jul 11 21:13:45 srv3004548798 gunicorn[82477]: [2025-07-11 21:13:45 +0000] [82477] [INFO] Listening at: unix:/var/www/bsepar_panel/gunicorn.sock (82477)
+      Jul 11 21:13:45 srv3004548798 gunicorn[82477]: [2025-07-11 21:13:45 +0000] [82477] [INFO] Using worker: sync
+      Jul 11 21:13:45 srv3004548798 gunicorn[82483]: [2025-07-11 21:13:45 +0000] [82483] [INFO] Booting worker with pid: 82483
+      Jul 11 21:13:45 srv3004548798 gunicorn[82484]: [2025-07-11 21:13:45 +0000] [82484] [INFO] Booting worker with pid: 82484
+      Jul 11 21:13:45 srv3004548798 gunicorn[82485]: [2025-07-11 21:13:45 +0000] [82485] [INFO] Booting worker with pid: 82485
+🔧 nginx: active
+
+8️⃣ NGINX CONFIGURATION
+--------------------------------------------------
+📋 Nginx Config:
+   server {
+       listen 80;
+       server_name panel.bsepar.com;
+       return 301 https://$host$request_uri;
+   }
+   
+   server {
+       listen 443 ssl http2;
+       server_name panel.bsepar.com;
+       
+       ssl_certificate /et...
+
+9️⃣ DATABASE
+--------------------------------------------------
+❌ Database check failed: /bin/sh: 1: source: not found
+
+🔟 URL TESTING
+--------------------------------------------------
+🌐 https://panel.bsepar.com/: HTTP 200
+🌐 https://panel.bsepar.com/login/: HTTP 200
+🌐 https://panel.bsepar.com/ai-chat/: HTTP 302
+🌐 https://panel.bsepar.com/ai-chat/settings/: HTTP 302
+
+================================================================================
+📊 SUMMARY & RECOMMENDATIONS
+================================================================================
+
+🔍 Key Findings:
+✅ Found template with new buttons: /var/www/bsepar_panel/templates/api_settings.html
+
+🚨 Issues Found:
+   ❌ Django configuration has issues
+
+📅 Report completed at: 2025-07-11 21:18:50.950976
+💾 This report has been saved for further analysis

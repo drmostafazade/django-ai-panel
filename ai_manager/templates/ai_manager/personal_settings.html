@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}تنظیمات شخصی - {{ api_key.provider.get_name_display }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'api_settings' %}">تنظیمات API</a></li>
+            <li class="breadcrumb-item active">تنظیمات شخصی</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">
+        <i class="bi bi-person-gear"></i>
+        تنظیمات شخصی {{ api_key.provider.get_name_display }}
+    </h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Context شخصی -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-chat-text"></i>
+                            Context شخصی
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea name="context" class="form-control" rows="8" 
+                                  placeholder="اطلاعات پروژه، تخصص، سبک کار و موارد مهم که همیشه در نظر گرفته شود...
+
+مثال:
+- من توسعه‌دهنده Django هستم
+- روی پروژه {{ api_key.provider.get_name_display }} کار می‌کنم
+- نیاز به پاسخ‌های فنی و دقیق دارم
+- کدها را با توضیحات کامل ارائه کن">{{ personal_context }}</textarea>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            این متن به ابتدای هر پیام شما اضافه می‌شود تا AI بهتر شما را بشناسد
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- دکمه‌های عملیات -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i>
+                        ذخیره تنظیمات
+                    </button>
+                    <a href="{% url 'api_settings' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i>
+                        بازگشت
+                    </a>
+                    <button type="button" class="btn btn-info" onclick="testPersonalSettings()">
+                        <i class="bi bi-play-circle"></i>
+                        تست Context
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- راهنما -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightbulb"></i>
+                        راهنمای Context شخصی
+                    </h6>
+                </div>
+                <div class="card-body small">
+                    <h6>موارد پیشنهادی:</h6>
+                    <ul class="ps-3">
+                        <li><strong>تخصص:</strong> زبان برنامه‌نویسی، فریمورک</li>
+                        <li><strong>پروژه:</strong> نوع و اهداف پروژه فعلی</li>
+                        <li><strong>سبک:</strong> شیوه پاسخ‌دهی مورد نظر</li>
+                        <li><strong>سطح:</strong> مبتدی، متوسط، پیشرفته</li>
+                        <li><strong>محدودیت‌ها:</strong> الزامات خاص</li>
+                    </ul>
+                    
+                    <div class="alert alert-warning py-2 mt-3">
+                        <small>
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>نکته:</strong> این اطلاعات با API Key شما ذخیره می‌شود
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- آمار API Key -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-bar-chart"></i>
+                        آمار این API Key
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h5 class="text-primary">{{ api_key.used_tokens|floatformat:0 }}</h5>
+                            <small class="text-muted">توکن مصرفی</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-success">{{ api_key.usage.count }}</h5>
+                            <small class="text-muted">تعداد استفاده</small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <p class="small mb-1">
+                        <strong>آخرین استفاده:</strong>
+                        {{ api_key.last_used|date:"Y/m/d H:i"|default:"هرگز" }}
+                    </p>
+                    <p class="small mb-0">
+                        <strong>ایجاد شده:</strong>
+                        {{ api_key.created_at|date:"Y/m/d" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function testPersonalSettings() {
+    const context = document.querySelector('textarea[name="context"]').value;
+    
+    if (!context.trim()) {
+        alert('ابتدا Context شخصی را وارد کنید');
+        return;
+    }
+    
+    // نمایش پیش‌نمایش
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">پیش‌نمایش Context شخصی</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <strong>این متن به ابتدای هر پیام شما اضافه می‌شود:</strong>
+                    </div>
+                    <div class="bg-light p-3 rounded">
+                        <pre class="mb-0">${context}</pre>
+                    </div>
+                    <hr>
+                    <div class="alert alert-success">
+                        <strong>مثال پیام نهایی:</strong><br>
+                        <code>${context}
+
+سوال کاربر: چطور در Django یک API بسازم؟</code>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    
+    // حذف modal بعد از بسته شدن
+    modal.addEventListener('hidden.bs.modal', () => {
+        modal.remove();
+    });
+}
+</script>
+{% endblock %}
