@@ -5,33 +5,101 @@
 {% block content %}
 <h1 class="page-title">داشبورد</h1>
 
+<!-- آمار اصلی -->
 <div class="row mb-4">
     <div class="col-md-3 mb-3">
         <div class="stat-card">
             <div class="stat-label">پروژه‌های فعال</div>
-            <div class="stat-number">{{ stats.projects|default:"12" }}</div>
+            <div class="stat-number">12</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card">
             <div class="stat-label">کامیت‌ها</div>
-            <div class="stat-number">{{ stats.commits|default:"347" }}</div>
+            <div class="stat-number">347</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card">
             <div class="stat-label">مسائل باز</div>
-            <div class="stat-number">{{ stats.issues|default:"23" }}</div>
+            <div class="stat-number">23</div>
         </div>
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card">
             <div class="stat-label">همکاران</div>
-            <div class="stat-number">{{ stats.users|default:"5" }}</div>
+            <div class="stat-number">5</div>
         </div>
     </div>
 </div>
 
+<!-- وضعیت سیستم -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">وضعیت سیستم</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 border rounded">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <small class="text-muted">فعال و آماده</small>
+                                <span class="text-success">✓</span>
+                            </div>
+                            <h6 class="mb-1">مخازن Git</h6>
+                            <h4 class="mb-0 text-primary">0</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 border rounded">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <small class="text-muted">مخزن متصل</small>
+                                <span class="text-danger">✗</span>
+                            </div>
+                            <h6 class="mb-1">توکن GitHub</h6>
+                            <h4 class="mb-0 text-muted">X</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 border rounded">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <small class="text-muted">تنظیم نشده</small>
+                                <span class="text-warning">!</span>
+                            </div>
+                            <h6 class="mb-1">AI Services</h6>
+                            <h4 class="mb-0 text-primary">0</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 border rounded">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <small class="text-muted">به زودی...</small>
+                                <span class="text-info">⋯</span>
+                            </div>
+                            <h6 class="mb-1">دسترسی سریع</h6>
+                            <div class="mt-2">
+                                <a href="/ai-chat/" class="btn btn-sm btn-primary">تنظیمات</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- لینک‌های سریع -->
+                <div class="mt-3 text-center">
+                    <a href="/git/" class="text-decoration-none mx-2">تنظیمات GitHub</a>
+                    <span class="text-muted">|</span>
+                    <a href="/ai-chat/" class="text-decoration-none mx-2">مشاهده مخازن</a>
+                    <span class="text-muted">|</span>
+                    <a href="/ai-chat/settings/" class="text-decoration-none mx-2">پیل مدیریت</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- دسترسی سریع و فعالیت‌ها -->
 <div class="row">
     <div class="col-md-6 mb-4">
         <div class="card">
@@ -39,8 +107,8 @@
                 <h5 class="card-title mb-3">دسترسی سریع</h5>
                 <div class="d-grid gap-2">
                     <a href="/ai-chat/" class="btn btn-primary">شروع چت با AI</a>
-                    <a href="/git/" class="btn btn-outline">مدیریت مخازن گیت</a>
-                    <a href="/terminal/" class="btn btn-outline">دسترسی به ترمینال</a>
+                    <a href="/git/" class="btn btn-outline-secondary">مدیریت مخازن گیت</a>
+                    <a href="/terminal/" class="btn btn-outline-secondary">دسترسی به ترمینال</a>
                 </div>
             </div>
         </div>
@@ -54,34 +122,6 @@
                     <p class="mb-2">• آپدیت مخزن گیت - 5 ساعت پیش</p>
                     <p class="mb-2">• اجرای دستورات ترمینال - دیروز</p>
                     <p class="mb-2">• چت با Claude AI - 2 روز پیش</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title mb-3">وضعیت سیستم</h5>
-                <div class="row">
-                    <div class="col-md-3">
-                        <small class="text-muted">مخازن Git</small>
-                        <p class="mb-0 fw-bold">{{ git_repos|default:"0" }} مخزن متصل</p>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">توکن GitHub</small>
-                        <p class="mb-0 fw-bold">{% if has_github_token %}فعال ✓{% else %}تنظیم نشده ✗{% endif %}</p>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">AI Services</small>
-                        <p class="mb-0 fw-bold">{{ ai_services|default:"0" }} سرویس فعال</p>
-                    </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">آخرین فعالیت</small>
-                        <p class="mb-0 fw-bold">چند لحظه پیش</p>
-                    </div>
                 </div>
             </div>
         </div>
