@@ -54,3 +54,26 @@ class TokenUsage(models.Model):
     
     class Meta:
         ordering = ['-timestamp']
+
+class PersonalPrompt(models.Model):
+    """پرامپت‌های شخصی‌سازی شده"""
+    api_key = models.ForeignKey(APIKey, on_delete=models.CASCADE, related_name='prompts')
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    category = models.CharField(max_length=50, choices=[
+        ('general', 'عمومی'),
+        ('odoo', 'Odoo Development'),
+        ('wordpress', 'WordPress'),
+        ('django', 'Django'),
+        ('debug', 'Debug & Fix'),
+    ], default='general')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['category', '-created_at']
+        verbose_name = 'Personal Prompt'
+        verbose_name_plural = 'Personal Prompts'
+    
+    def __str__(self):
+        return f"{self.title} - {self.api_key.provider.name}"
