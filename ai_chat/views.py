@@ -1,131 +1,62 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views import View
 from django.core.cache import cache
 import json
 
-# Import the settings model from our core app
-from core.models import AIProviderSetting
+from api_manager.models import APIKey
+from prompt_manager.models import PersonalizationProfile, PromptTemplate
+from .services import get_ai_response
 
-# Import AI libraries
-import openai
-import anthropic
-import google.generativeai as genai
-
-# --- Specific Functions for Each AI Provider ---
-
-def _get_openai_response(api_key, system_prompt, user_message):
-    try:
-        client = openai.OpenAI(api_key=api_key)
-        completion = client.chat.completions.create(
-            model="gpt-4o",  # Or another model like "gpt-3.5-turbo"
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ]
-        )
-        return {
-            "success": True,
-            "content": completion.choices[0].message.content,
-            "usage": {
-                "input_tokens": completion.usage.prompt_tokens,
-                "output_tokens": completion.usage.completion_tokens,
-            }
-        }
-    except Exception as e:
-        return {"success": False, "error": f"OpenAI API Error: {str(e)}"}
-
-def _get_claude_response(api_key, system_prompt, user_message):
-    try:
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model="claude-3-sonnet-20240229",
-            max_tokens=2048,
-            system=system_prompt,
-            messages=[
-                {"role": "user", "content": user_message}
-            ]
-        )
-        return {
-            "success": True,
-            "content": message.content[0].text,
-            "usage": {
-                "input_tokens": message.usage.input_tokens,
-                "output_tokens": message.usage.output_tokens,
-            }
-        }
-    except Exception as e:
-        return {"success": False, "error": f"Anthropic API Error: {str(e)}"}
-
-def _get_gemini_response(api_key, system_prompt, user_message):
-    try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-pro-latest",
-            system_instruction=system_prompt
-        )
-        response = model.generate_content(user_message)
-        return {
-            "success": True,
-            "content": response.text,
-            "usage": None  # Token usage is not as straightforward to get in this SDK version
-        }
-    except Exception as e:
-        return {"success": False, "error": f"Google Gemini API Error: {str(e)}"}
-
-# --- Main Dispatcher Function ---
-
-def get_ai_response(provider, api_key, system_prompt, user_message):
-    """Dispatcher function to call the correct AI provider."""
-    if provider == 'openai':
-        return _get_openai_response(api_key, system_prompt, user_message)
-    elif provider == 'claude':
-        return _get_claude_response(api_key, system_prompt, user_message)
-    elif provider == 'gemini':
-        return _get_gemini_response(api_key, system_prompt, user_message)
-    else:
-        return {"success": False, "error": f"Unknown provider: {provider}"}
-
-
-# --- Django Views ---
-
+@login_required
 def chat_view(request):
-    """Renders the main chat page."""
-    active_providers = AIProviderSetting.objects.filter(is_active=True)
-    return render(request, 'ai_chat/chat.html', {'providers': active_providers})
+    active_keys = APIKey.objects.filter(user=request.user, is_active=True).select_related('provider')
+    profiles = PersonalizationProfile.objects.filter(user=request.user, is_active=True)
+    templates = PromptTemplate.objects.filter(user=request.user, is_active=True)
+    
+    context = {
+        'api_keys': active_keys,
+        'profiles': profiles,
+        'templates': templates,
+    }
+    return render(request, 'ai_chat/chat.html', context)
 
 class ChatAPIView(View):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
             user_message = data.get('message')
-            provider_name = data.get('provider')
+            api_key_id = data.get('api_key_id')
+            profile_id = data.get('profile_id')
+            template_id = data.get('template_id')
 
-            if not user_message or not provider_name:
-                return JsonResponse({'error': 'Message and provider are required.'}, status=400)
+            if not user_message or not api_key_id:
+                return JsonResponse({'error': 'Message and API Key selection are required.'}, status=400)
 
-            provider_setting = AIProviderSetting.objects.filter(provider=provider_name, is_active=True).first()
-            if not provider_setting:
-                return JsonResponse({'error': f"Provider '{provider_name}' is not configured or is inactive."}, status=400)
+            key_instance = APIKey.objects.get(id=api_key_id, user=request.user, is_active=True)
             
-            api_key = provider_setting.api_key
-
-            project_schema = cache.get('project_db_schema', {})
-            schema_json = json.dumps(project_schema, indent=2)
+            # Use default schema if no profile is selected
+            system_prompt = json.dumps(cache.get('project_db_schema', {}), indent=2)
+            if profile_id:
+                profile = PersonalizationProfile.objects.get(id=profile_id, user=request.user)
+                system_prompt = profile.system_prompt
             
-            system_prompt = (
-                "You are an expert Django developer assistant named 'PanelAI'. "
-                "You are working inside a Django project. Use the following database schema for context:\n\n"
-                f"```json\n{schema_json}\n```\n\n"
-                "Provide accurate, helpful answers related to this project. Format code snippets correctly using markdown."
+            final_user_message = user_message
+            if template_id:
+                template = PromptTemplate.objects.get(id=template_id, user=request.user)
+                final_user_message = template.template_text.replace("{{user_message}}", user_message)
+
+            response_data = get_ai_response(
+                provider_name=key_instance.provider.name,
+                api_key=key_instance.key,
+                model_name=key_instance.model_name,
+                system_prompt=system_prompt,
+                user_message=final_user_message
             )
-
-            # This now calls our real AI dispatcher function
-            response_data = get_ai_response(provider_name, api_key, system_prompt, user_message)
-
             return JsonResponse(response_data)
 
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON in request body.'}, status=400)
+        except APIKey.DoesNotExist:
+            return JsonResponse({'error': 'Invalid or inactive API Key selected.'}, status=403)
         except Exception as e:
             return JsonResponse({'error': f"An unexpected error occurred: {str(e)}"}, status=500)

@@ -1,0 +1,81 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block after_field_sets %}
+{{ block.super }}
+
+<fieldset class="module aligned">
+    <h2><i class="bi bi-magic"></i> تولید پرامپت با هوش مصنوعی</h2>
+    <div class="form-row">
+        <div class="row">
+            <div class="col-md-5"><label for="tech-selector">انتخاب تکنولوژی:</label><select id="tech-selector" class="form-select"><option value="">-- یک تخصص انتخاب کنید --</option></select></div>
+            <div class="col-md-5"><label for="tech-version">نسخه (اختیاری):</label><input type="text" id="tech-version" class="form-control" placeholder="e.g., 3.11 or 18.0"></div>
+            <div class="col-md-2 d-flex align-items-end"><button type="button" id="generate-prompt-btn" class="btn btn-primary w-100">تولید کن</button></div>
+        </div>
+        <div id="generator-status" class="mt-2"></div>
+    </div>
+</fieldset>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    const techChoices = [
+        { value: 'python', name: 'Python' }, { value: 'django', name: 'Django' },
+        { value: 'odoo', name: 'Odoo' }, { value: 'wordpress', name: 'WordPress' },
+        { value: 'php', name: 'PHP' }, { value: 'javascript', name: 'JavaScript' },
+        { value: 'ui_ux', name: 'UI/UX Design' }
+    ];
+
+    const techSelector = document.getElementById('tech-selector');
+    techChoices.forEach(tech => {
+        const option = document.createElement('option');
+        option.value = tech.value;
+        option.textContent = tech.name;
+        techSelector.appendChild(option);
+    });
+
+    const generateBtn = document.getElementById('generate-prompt-btn');
+    const systemPromptTextarea = document.getElementById('id_system_prompt');
+    const statusDiv = document.getElementById('generator-status');
+
+    generateBtn.addEventListener('click', async function() {
+        const technology = techSelector.value;
+        const version = document.getElementById('tech-version').value;
+        if (!technology) { alert('لطفا یک تکنولوژی را انتخاب کنید.'); return; }
+
+        statusDiv.innerHTML = '<p class="text-info">در حال تولید پرامپت... لطفا صبر کنید.</p>';
+        generateBtn.disabled = true;
+
+        try {
+            const response = await fetch("{% url 'admin:prompt_manager_personalizationprofile_generate_prompt' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                body: JSON.stringify({ technology: technology, version: version })
+            });
+            const data = await response.json();
+            if (data.success) {
+                const currentText = systemPromptTextarea.value;
+                systemPromptTextarea.value = (currentText ? currentText + '\\n\\n--- Auto-generated ---\\n' : '') + data.prompt.trim();
+                statusDiv.innerHTML = '<p class="text-success">پرامپت تخصصی با موفقیت تولید و به کادر زیر اضافه شد.</p>';
+            } else { statusDiv.innerHTML = '<p class="text-danger">خطا: ' + data.error + '</p>'; }
+        } catch (error) { statusDiv.innerHTML = '<p class="text-danger">خطای شبکه: ' + error + '</p>'; }
+        finally { generateBtn.disabled = false; }
+    });
+});
+</script>
+{% endblock %}

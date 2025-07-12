@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'dashboard',
     'users',
     'api_manager',
+    'prompt_manager',
 ]
 
 # --- Middleware Configuration ---

@@ -1,34 +1,19 @@
 {% extends "base.html" %}
 {% load static %}
-
-{% block title %}AI Chat - AI Panel{% endblock %}
-
-{% block extra_css %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <link rel="stylesheet" href="{% static 'ai_chat/chat.css' %}">
-{% endblock %}
+{% block title %}چت هوشمند - پنل AI{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'ai_chat/chat.css' %}">{% endblock %}
 
 {% block content %}
-<div class="chat-container">
+<div class="chat-page-wrapper">
     <div class="chat-header">
-        <h3>دستیار هوشمند پروژه</h3>
-        <p class="text-muted mb-0">کوئری‌های جنگو را اجرا کنید، فایل‌ها را ویرایش کنید و کد تولید کنید.</p>
+        <div class="row g-2 w-100">
+            <div class="col"><select class="form-select form-select-sm" id="api-key-selector"><option value="">-- انتخاب سرویس --</option>{% for key in api_keys %}<option value="{{ key.id }}">{{ key.provider.get_name_display }} ({{ key.model_name|default:'پیش‌فرض' }})</option>{% endfor %}</select></div>
+            <div class="col"><select class="form-select form-select-sm" id="profile-selector"><option value="">-- پروفایل شخصی --</option>{% for profile in profiles %}<option value="{{ profile.id }}">{{ profile.name }}</option>{% endfor %}</select></div>
+            <div class="col"><select class="form-select form-select-sm" id="template-selector"><option value="">-- قالب پرامپت --</option>{% for template in templates %}<option value="{{ template.id }}">{{ template.name }}</option>{% endfor %}</select></div>
+        </div>
     </div>
     <div class="chat-messages" id="chat-messages"></div>
-    <div class="chat-input-area">
-        <select class="form-select" id="model-selector" title="Select an AI provider">
-            <option value="">-- انتخاب مدل --</option>
-            
-            <!-- THIS IS THE CORRECTED BLOCK -->
-            {% for provider in providers %}
-            <option value="{{ provider.provider }}">{{ provider.get_provider_display }}</option>
-            {% endfor %}
-            <!-- END OF CORRECTION -->
-
-        </select>
-        <textarea id="message-input" placeholder="مثال: ۵ کاربر آخر را به من نشان بده..."></textarea>
-        <button id="send-button" title="Send Message"><i class="bi bi-send-fill"></i></button>
-    </div>
+    <div class="chat-input-area"><div class="textarea-wrapper"><textarea id="message-input" placeholder="برای خط جدید از Shift+Enter استفاده کنید..." rows="1"></textarea><button id="send-button" title="ارسال پیام"><i class="bi bi-send-fill"></i></button></div></div>
 </div>
 {% endblock %}
 
@@ -36,94 +21,58 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>
-        // The JavaScript part remains the same as it is correct.
-        const chatMessages = document.getElementById('chat-messages');
+        // JS logic is updated to send new dropdown values
+        const apiKeySelector = document.getElementById('api-key-selector');
+        const profileSelector = document.getElementById('profile-selector');
+        const templateSelector = document.getElementById('template-selector');
+        // ... rest of your JS variables ...
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
-        const modelSelector = document.getElementById('model-selector');
-        const csrftoken = getCookie('csrftoken');
+        const chatMessages = document.getElementById('chat-messages');
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        function addMessage(content, type) {
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('message-wrapper');
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message', type);
-            if (type === 'ai') {
-                messageElement.innerHTML = marked.parse(content);
-                messageElement.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightElement(block);
-                    addCodeBlockActions(block);
-                });
-            } else {
-                messageElement.textContent = content;
-            }
-            wrapper.appendChild(messageElement);
-            chatMessages.appendChild(wrapper);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            return wrapper;
-        }
-
-        function addCodeBlockActions(codeBlock) {
-            const preElement = codeBlock.parentNode;
-            const actionBar = document.createElement('div');
-            actionBar.className = 'code-action-bar';
-            const copyButton = document.createElement('button');
-            copyButton.className = 'action-button';
-            copyButton.innerHTML = '<i class="bi bi-clipboard"></i> کپی';
-            copyButton.onclick = () => {
-                navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-                    copyButton.innerHTML = '<i class="bi bi-check-lg"></i> کپی شد';
-                    setTimeout(() => { copyButton.innerHTML = '<i class="bi bi-clipboard"></i> کپی'; }, 2000);
-                });
-            };
-            actionBar.appendChild(copyButton);
-            preElement.parentNode.insertBefore(actionBar, preElement);
-        }
+        messageInput.addEventListener('input', () => { messageInput.style.height = 'auto'; messageInput.style.height = (messageInput.scrollHeight) + 'px'; });
+        messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+        sendButton.addEventListener('click', sendMessage);
 
         async function sendMessage() {
             const message = messageInput.value.trim();
-            const provider = modelSelector.value;
-            if (!message || !provider) { alert('لطفا یک مدل را انتخاب کرده و پیام خود را بنویسید.'); return; }
-            addMessage(message, 'user');
-            messageInput.value = '';
-            const typingIndicator = addMessage('<div class="typing-indicator"><span>.</span><span>.</span><span>.</span></div>', 'ai');
+            const apiKeyId = apiKeySelector.value;
+            const profileId = profileSelector.value;
+            const templateId = templateSelector.value;
+
+            if (!message || !apiKeyId) { alert('لطفا یک مدل را انتخاب کرده و پیام خود را بنویسید.'); return; }
+            addMessageToUI(message, 'user');
+            messageInput.value = ''; messageInput.style.height = 'auto';
+            const typingIndicator = addMessageToUI('<div class="typing-indicator">...</div>', 'ai');
+            
             try {
                 const response = await fetch("{% url 'ai_chat:chat_api' %}", {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-                    body: JSON.stringify({ message: message, provider: provider })
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+                    body: JSON.stringify({
+                        message: message,
+                        api_key_id: apiKeyId,
+                        profile_id: profileId,
+                        template_id: templateId
+                    })
                 });
                 typingIndicator.remove();
                 const data = await response.json();
-                if (data.success) { addMessage(data.content, 'ai'); }
-                else { addMessage(`<strong>Error:</strong> ${data.error}`, 'ai error'); }
+                if (data.success) { addMessageToUI(data.content, 'ai'); }
+                else { addMessageToUI(`<strong>خطا:</strong> ${data.error}`, 'ai error'); }
             } catch (error) {
                 typingIndicator.remove();
-                addMessage(`<strong>Network Error:</strong> ${error.message}`, 'ai error');
+                addMessageToUI(`<strong>خطای شبکه:</strong> ${error.message}`, 'ai error');
             }
         }
-
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-        });
-
-        // Initial welcome message
-        addMessage("سلام! من دستیار هوشمند پروژه شما هستم.", 'ai');
+        function addMessageToUI(content, type) { /* Your existing function here */
+            const wrapper = document.createElement('div'); wrapper.classList.add('message-wrapper');
+            const msgEl = document.createElement('div'); msgEl.classList.add('message', type);
+            if (type === 'ai') { msgEl.innerHTML = marked.parse(content); msgEl.querySelectorAll('pre code').forEach(b => hljs.highlightElement(b)); }
+            else { msgEl.textContent = content; }
+            wrapper.appendChild(msgEl); chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight; return wrapper;
+        }
+        function getCookie(name) { let v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)'); return v ? v[2] : null; }
     </script>
 {% endblock %}
