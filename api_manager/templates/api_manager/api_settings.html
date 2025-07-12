@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}مدیریت API Keys{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'api_manager/css/style.css' %}">{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <h1 class="mb-4">تنظیمات API Keys</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row g-4">
+        <!-- Main Form Column -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">افزودن API Key جدید</h5></div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'api_manager:api_settings' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="model_name" id="selected_model_id">
+                        <div id="step-1-provider"><label class="form-label fw-bold">۱. انتخاب سرویس‌دهنده:</label><div class="row g-3">{% for provider in providers %}<div class="col-md-4 provider-card"><div class="form-check"><input class="form-check-input" type="radio" name="provider" value="{{ provider.name }}" id="provider-{{ provider.name }}" onchange="showStep(2)"><label class="form-check-label" for="provider-{{ provider.name }}"><strong>{{ provider.get_name_display }}</strong></label></div></div>{% endfor %}</div></div>
+                        <div id="step-2-apikey" class="mt-4" style="display: none;"><label for="api_key" class="form-label fw-bold">۲. وارد کردن API Key:</label><div class="input-group"><input type="password" name="api_key" id="api_key" class="form-control" required><button type="button" class="btn btn-primary" onclick="fetchModels()"><i class="bi bi-cloud-download"></i> دریافت مدل‌ها</button></div></div>
+                        <div id="loading-indicator" class="text-center my-4" style="display: none;"><div class="spinner-border text-primary"></div><p class="mt-2">در حال دریافت اطلاعات...</p></div>
+                        <div id="step-3-models" class="mt-4" style="display: none;"><label class="form-label fw-bold">۳. انتخاب مدل پیش‌فرض:</label><div id="models-list" class="row g-2"></div></div>
+                        <div id="step-4-save" class="mt-4" style="display: none;"><button type="submit" class="btn btn-success w-100"><i class="bi bi-save"></i> ذخیره نهایی</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Saved Keys Table -->
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">API Keys ذخیره شده</h5></div>
+                <div class="card-body">
+                    {% if user_keys %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead><tr><th>سرویس</th><th>مدل پیش‌فرض</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+                                <tbody>
+                                    {% for key in user_keys %}
+                                    <tr>
+                                        <td><strong>{{ key.provider.get_name_display }}</strong></td>
+                                        <td><code>{{ key.model_name|default:"-" }}</code></td>
+                                        <td>
+                                            {% if key.is_active %}
+                                                <span class="badge bg-success">فعال</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">غیرفعال</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <form method="post" action="{% url 'api_manager:toggle_api_key' %}" class="d-inline">
+                                                    {% csrf_token %}<input type="hidden" name="key_id" value="{{ key.id }}">
+                                                    <button type="submit" class="btn btn-outline-warning" title="{% if key.is_active %}غیرفعال کردن{% else %}فعال کردن{% endif %}">
+                                                        <i class="bi bi-toggle-{% if key.is_active %}on{% else %}off{% endif %}"></i>
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{% url 'api_manager:delete_api_key' %}" class="d-inline" onsubmit="return confirm('آیا از حذف این کلید مطمئن هستید؟ این عمل غیرقابل بازگشت است.');">
+                                                    {% csrf_token %}<input type="hidden" name="key_id" value="{{ key.id }}">
+                                                    <button type="submit" class="btn btn-outline-danger" title="حذف کلید"><i class="bi bi-trash"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center my-3">هیچ کلید API ذخیره نشده است.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Column -->
+        <div class="col-lg-4">
+            <div class="card"><div class="card-header"><h6 class="mb-0">راهنمای سریع</h6></div><div class="card-body small"><p>برای هر سرویس، یک API Key معتبر وارد کرده و مدل پیش‌فرض خود را انتخاب کنید.</p></div></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    // JS from previous step, no changes needed
+    function getCookie(name){let v=document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)');return v?v[2]:null}
+    function showStep(e){2===e&&(document.getElementById("step-2-apikey").style.display="block")}
+    async function fetchModels(){const e=document.querySelector('input[name="provider"]:checked');if(!e)return void alert("لطفا ابتدا یک سرویس‌دهنده را انتخاب کنید.");const t=e.value,o=document.getElementById("api_key").value;if(!o)return void alert("لطفا API Key را وارد کنید.");document.getElementById("loading-indicator").style.display="block",document.getElementById("step-3-models").style.display="none";try{const e=await fetch("{% url 'api_manager:get_available_models' %}",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json","X-CSRFToken":getCookie("csrftoken")},body:JSON.stringify({provider:t,api_key:o})}),a=await e.json();if(document.getElementById("loading-indicator").style.display="none",a.success){const e=document.getElementById("models-list");if(e.innerHTML="",a.models&&a.models.length>0){a.models.forEach((t,o)=>{e.innerHTML+='<div class="col-md-6 model-card"><div class="form-check"><input class="form-check-input" type="radio" name="model_choice" value="'+t.id+'" id="model_'+o+'" onchange="selectModel(\''+t.id+"')\"><label class=\"form-check-label\" for=\"model_"+o+'"><strong>'+t.name+"</strong></label></div></div>"}),document.getElementById("step-3-models").style.display="block"}else e.innerHTML='<p class="text-muted">هیچ مدل سازگاری یافت نشد.</p>',document.getElementById("step-3-models").style.display="block"}else alert("خطا در دریافت مدل‌ها: "+a.error)}catch(e){document.getElementById("loading-indicator").style.display="none",alert("خطای شبکه: "+e)}}
+    function selectModel(e){document.getElementById("selected_model_id").value=e,document.getElementById("step-4-save").style.display="block"}
+</script>
+{% endblock %}

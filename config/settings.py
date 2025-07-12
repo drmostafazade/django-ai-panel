@@ -16,6 +16,7 @@ ALLOWED_HOSTS = ['*']
 
 # --- Application Definitions ---
 INSTALLED_APPS = [
+    'ai_chat',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -28,6 +29,9 @@ INSTALLED_APPS = [
 
     # Local apps (The heart of our AI Panel)
     'core',
+    'dashboard',
+    'users',
+    'api_manager',
 ]
 
 # --- Middleware Configuration ---
@@ -104,3 +108,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+# --- Authentication Configuration ---
+LOGIN_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'dashboard:home'
+LOGOUT_REDIRECT_URL = 'users:login'
+
+# --- Authentication Configuration ---
+LOGIN_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'dashboard:home'
+LOGOUT_REDIRECT_URL = 'users:login'
+
+# --- Authentication Configuration ---
+LOGIN_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'dashboard:home'
+LOGOUT_REDIRECT_URL = 'users:login'
+
+# --- Authentication Configuration ---
+LOGIN_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'dashboard:home'
+LOGOUT_REDIRECT_URL = 'users:login'
