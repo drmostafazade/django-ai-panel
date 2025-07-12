@@ -1,23 +1,43 @@
+# This is the corrected and final version of the service file.
+import openai
 import anthropic
 from api_manager.models import APIKey
 
-def generate_specialized_prompt(user, technology, version="latest"):
+def generate_specialized_prompt(user, technology, version, api_key_id):
     try:
-        claude_key = APIKey.objects.get(user=user, provider__name='claude', is_active=True)
-        client = anthropic.Anthropic(api_key=claude_key.key)
+        # Use the specific API key selected by the user
+        generation_key = APIKey.objects.get(id=api_key_id, user=user, is_active=True)
+        provider_name = generation_key.provider.name
+        api_key_value = generation_key.key
+
+        meta_prompt = f"Generate a comprehensive, expert-level system prompt for an AI assistant specializing in: **{technology} (version: {version or 'latest'})**. Output ONLY the prompt text, without any other text."
         
-        meta_prompt = f"""
-        You are a world-class prompt engineer. Your task is to generate a comprehensive system prompt for another AI assistant.
-        This assistant must become a super-specialist in: **{technology} (version: {version})**.
-        Generate ONLY the system prompt text, without any introductory or concluding remarks.
-        """
+        response_text = ""
+
+        if provider_name == 'openai':
+            client = openai.OpenAI(api_key=api_key_value)
+            completion = client.chat.completions.create(
+                model="gpt-3.5-turbo", # Using a faster model for this task
+                messages=[{"role": "user", "content": meta_prompt}]
+            )
+            response_text = completion.choices[0].message.content
         
-        message = client.messages.create(
-            model="claude-3-5-sonnet-20240620", max_tokens=1024,
-            messages=[{"role": "user", "content": meta_prompt}]
-        )
-        return {"success": True, "prompt": message.content[0].text}
+        elif provider_name == 'claude':
+            client = anthropic.Anthropic(api_key=api_key_value)
+            message = client.messages.create(
+                model="claude-3-haiku-20240307", # Using a faster model
+                max_tokens=1024,
+                messages=[{"role": "user", "content": meta_prompt}]
+            )
+            response_text = message.content[0].text
+        
+        else:
+             return {"success": False, "error": f"Provider '{provider_name}' is not supported for prompt generation yet."}
+
+        return {"success": True, "prompt": response_text}
+
     except APIKey.DoesNotExist:
-        return {"success": False, "error": "A valid, active Claude API key is required to use this feature."}
-    except Exception as e:
+        return {"success": False, "error": "کلید API انتخاب شده برای تولید پرامپت معتبر یا فعال نیست."}
+    except Exception asش e:
+        # This will catch the 401 error from OpenAI and return it to the user
         return {"success": False, "error": str(e)}

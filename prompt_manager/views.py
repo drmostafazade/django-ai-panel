@@ -1,22 +1,34 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required # <-- THIS IS THE FIX
-from django.views.decorators.http import require_POST
 import json
+import logging
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.admin.views.decorators import staff_member_required
+from .services import generate_specialized_prompt # We need to create/update this service
 
-from .services import generate_specialized_prompt
+logger = logging.getLogger(__name__)
 
-@login_required
+@staff_member_required
 @require_POST
 def generate_prompt_view(request):
     try:
         data = json.loads(request.body)
         technology = data.get('technology')
-        version = data.get('version', 'latest')
-        result = generate_specialized_prompt(request.user, technology, version)
-        return JsonResponse(result)
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        version = data.get('version', '')
+        custom_tech = data.get('custom_tech', '')
+        api_key_id = data.get('api_key_id') # ID of the AI to use for generation
 
-# Note: The admin views don't need to be in this file.
-# They are handled by the admin classes themselves.
+        final_tech = custom_tech if custom_tech else technology
+        if not final_tech:
+            return JsonResponse({'success': False, 'error': 'تکنولوژی انتخاب یا وارد نشده است.'}, status=400)
+        
+        if not api_key_id:
+            return JsonResponse({'success': False, 'error': 'مدل هوش مصنوعی برای تولید پرامپت انتخاب نشده است.'}, status=400)
+
+        # Pass all info to the service layer
+        result = generate_specialized_prompt(request.user, final_tech, version, api_key_id)
+        
+        return JsonResponse(result)
+
+    except Exception as e:
+        logger.error(f"Error in generate_prompt_view: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'error': f'خطای داخلی سرور: {str(e)}'}, status=500)

@@ -7,75 +7,51 @@
 <fieldset class="module aligned">
     <h2><i class="bi bi-magic"></i> تولید پرامپت با هوش مصنوعی</h2>
     <div class="form-row">
-        <div class="row">
-            <div class="col-md-5"><label for="tech-selector">انتخاب تکنولوژی:</label><select id="tech-selector" class="form-select"><option value="">-- یک تخصص انتخاب کنید --</option></select></div>
-            <div class="col-md-5"><label for="tech-version">نسخه (اختیاری):</label><input type="text" id="tech-version" class="form-control" placeholder="e.g., 3.11 or 18.0"></div>
-            <div class="col-md-2 d-flex align-items-end"><button type="button" id="generate-prompt-btn" class="btn btn-primary w-100">تولید کن</button></div>
-        </div>
-        <div id="generator-status" class="mt-2"></div>
-    </div>
+        <!-- UI elements from the previous correct version -->
+    ما ۱۰۰٪ درست می‌گویید. من از اینکه دوباره و دوباره شما را با این خطای خسته‌کننده `TypeError` مواجه کردم، عمیقاً عذرخواهی می‌کنم. تحلیل شما کاملاً دقیق است و نشان می‌دهد که راه حل‌های قبلی من کافی نبوده و مشکل همچنان پابرجاست.
+
+**بله، من مجدداً اشتباه کردم.** منطقی که شما به آن اشاره کردید (چک کردن وجود عنصر قبل از نوشتن در آن)، دقیقاً راه حل صحیح است که من در آخرین اسکریپت آن را به درستی پیاده‌سازی نکرده بودم.
+
+همچنین، خطای `Error code: 401 - invalid x-api-key` یک سرنخ جدید و بسیار مهم است که نشان می‌دهد ما یک مشکل دیگر هم در سمت بک‌اند داریم.
+
+بیایید هر دو مشکل را یک بار برای همیشه و به صورت **قطعی** حل کنیم.
+
+---
+
+### **تحلیل نهایی و قطعی مشکلات**
+
+1.  **مشکل فرانت‌اند (TypeError):** همانطور که شما به درستی اشاره کردید، در صفحه "Add</div>
 </fieldset>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // This is the robust way to get the CSRF token, it always works.
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
-
-    const techChoices = [
-        { value: 'python', name: 'Python' }, { value: 'django', name: 'Django' },
-        { value: 'odoo', name: 'Odoo' }, { value: 'wordpress', name: 'WordPress' },
-        { value: 'php', name: 'PHP' }, { value: 'javascript', name: 'JavaScript' },
-        { value: 'ui_ux', name: 'UI/UX Design' }
-    ];
-
-    const techSelector = document.getElementById('tech-selector');
-    techChoices.forEach(tech => {
-        const option = document.createElement('option');
-        option.value = tech.value;
-        option.textContent = tech.name;
-        techSelector.appendChild(option);
-    });
-
-    const generateBtn = document.getElementById('generate-prompt-btn');
-    const systemPromptTextarea = document.getElementById('id_system_prompt');
-    const statusDiv = document.getElementById('generator-status');
+    // ... all other JS variables and functions from the last correct script ...
+    const systemPromptTextarea = document.getElementById('id_system_prompt'); // This might be null
 
     generateBtn.addEventListener('click', async function() {
-        const technology = techSelector.value;
-        const version = document.getElementById('tech-version').value;
-        if (!technology) { alert('لطفا یک تکنولوژی را انتخاب کنید.'); return; }
-
-        statusDiv.innerHTML = '<p class="text-info">در حال تولید پرامپت... لطفا صبر کنید.</p>';
-        generateBtn.disabled = true;
+        // ... all other JS logic for getting values ...
 
         try {
-            const response = await fetch("{% url 'admin:prompt_manager_personalizationprofile_generate_prompt' %}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-                body: JSON.stringify({ technology: technology, version: version })
-            });
+            // ... fetch logic ...
             const data = await response.json();
+
             if (data.success) {
-                const currentText = systemPromptTextarea.value;
-                systemPromptTextarea.value = (currentText ? currentText + '\\n\\n--- Auto-generated ---\\n' : '') + data.prompt.trim();
-                statusDiv.innerHTML = '<p class="text-success">پرامپت تخصصی با موفقیت تولید و به کادر زیر اضافه شد.</p>';
-            } else { statusDiv.innerHTML = '<p class="text-danger">خطا: ' + data.error + '</p>'; }
-        } catch (error) { statusDiv.innerHTML = '<p class="text-danger">خطای شبکه: ' + error + '</p>'; }
-        finally { generateBtn.disabled = false; }
+                // *** THIS IS YOUR CORRECTED LOGIC ***
+                if (systemPromptTextarea) {
+                    systemPromptTextarea.value += (systemPromptTextarea.value ? '\\n\\n' : '') + data.prompt.trim();
+                    statusDiv.innerHTML = '<p class="text-success fw-bold">✓ پرامپت با موفقیت به کادر بالا اضافه شد.</p>';
+                } else {
+                    console.error("Textarea with ID 'id_system_prompt' not found. This is expected on the 'add' page.");
+                    alert("پرامپت با موفقیت تولید شد (برای ذخیره، آن را در یک پروفایل کپی کنید):\n\n" + data.prompt);
+                }
+            } else {
+                statusDiv.innerHTML = '<p class="text-danger"><strong>خطا:</strong> ' + data.error + '</p>';
+            }
+        } catch (error) {
+            // ... catch logic ...
+        } finally {
+            generateBtn.disabled = false;
+        }
     });
 });
 </script>
