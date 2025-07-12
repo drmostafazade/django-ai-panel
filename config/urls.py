@@ -13,5 +13,5 @@ urlpatterns = [
     path('git/', views.git_view, name='git'),
     path('terminal/', views.terminal_view, name='terminal'),
     path('ai/', views.ai_view, name='ai'),
-    path('ai-chat/', include('ai_manager.urls')),
+#    path('ai-chat/', include('ai_manager.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

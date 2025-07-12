@@ -1,3 +1,5 @@
 from django.contrib import admin
-
-# Register your models here.
+from .models import AIProviderSetting
+@admin.register(AIProviderSetting)
+class AIProviderSettingAdmin(admin.ModelAdmin):
+    list_display = ('provider', 'is_active')

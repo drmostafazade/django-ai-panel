@@ -1,10 +1,20 @@
+import os
 from pathlib import Path
 
+# --- Core Paths ---
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# --- Security Settings ---
+# WARNING: The secret key is insecure. A new, strong key MUST be generated for production.
 SECRET_KEY = 'django-insecure-simple-key-for-testing-only'
+
+# WARNING: DEBUG should be False in production.
 DEBUG = True
+
+# WARNING: Update ALLOWED_HOSTS for production with your actual domain names.
 ALLOWED_HOSTS = ['*']
 
+# --- Application Definitions ---
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -12,10 +22,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'dashboard',
-    'ai_manager',
+
+    # Third-party apps
+    'rest_framework',
+
+    # Local apps (The heart of our AI Panel)
+    'core',
 ]
 
+# --- Middleware Configuration ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -26,8 +41,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# --- URL Configuration ---
 ROOT_URLCONF = 'config.urls'
 
+# --- Template Configuration ---
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -44,8 +61,10 @@ TEMPLATES = [
     },
 ]
 
+# --- WSGI Application ---
 WSGI_APPLICATION = 'config.wsgi.application'
 
+# --- Database Configuration ---
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -57,27 +76,31 @@ DATABASES = {
     }
 }
 
-AUTH_PASSWORD_VALIDATORS = []
+# --- Password Validation ---
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
 
+# --- Internationalization ---
 LANGUAGE_CODE = 'fa-ir'
 TIME_ZONE = 'Asia/Tehran'
 USE_I18N = True
 USE_TZ = True
 
+# --- Static Files Configuration ---
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
+# --- Default Primary Key ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Authentication
+# --- Authentication URLs ---
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
-
-# Static files configuration
-import os
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
