@@ -18,6 +18,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // This is the robust way to get the CSRF token, it always works.
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
